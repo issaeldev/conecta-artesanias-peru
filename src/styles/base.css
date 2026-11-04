@@ -1,0 +1,283 @@
+/* Base y componentes compartidos (botones, chips, tarjetas, grillas, utilidades). */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+  scroll-padding-top: 70px;
+}
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--ink);
+  font: 16.5px/1.65 var(--font-body);
+  -webkit-font-smoothing: antialiased;
+}
+
+h1,
+h2,
+h3 {
+  line-height: 1.15;
+  margin: 0 0 0.5em;
+  font-family: var(--font-display);
+  font-weight: 600;
+  letter-spacing: -0.02em;
+}
+h1 {
+  font-size: clamp(2rem, 6vw, 3.4rem);
+}
+h2 {
+  font-size: clamp(1.9rem, 4.2vw, 2.8rem);
+  margin-bottom: 0.4em;
+}
+h2::after {
+  content: "";
+  display: block;
+  width: 84px;
+  height: 5px;
+  margin-top: 10px;
+  border-radius: 3px;
+  background: linear-gradient(90deg, var(--acc) 0 34%, var(--gold) 34% 67%, var(--acc2) 67%);
+}
+
+a {
+  color: inherit;
+}
+
+:focus-visible {
+  outline: 3px solid var(--acc2);
+  outline-offset: 3px;
+}
+
+.w {
+  max-width: 1080px;
+  margin: 0 auto;
+  padding: 0 20px;
+}
+
+/* Aparición al hacer scroll */
+.rv {
+  opacity: 0;
+  transform: translateY(18px);
+  transition: opacity 0.6s, transform 0.6s;
+}
+.rv.in {
+  opacity: 1;
+  transform: none;
+}
+
+section {
+  padding: 96px 0;
+}
+.sub {
+  color: var(--mut);
+  max-width: 560px;
+  margin-bottom: 36px;
+  font-size: 1.05rem;
+}
+.band {
+  background: var(--band);
+  border: 0;
+}
+
+/* Botones */
+.btn {
+  display: inline-block;
+  background: var(--acc);
+  color: #fff;
+  padding: 14px 26px;
+  border-radius: 999px;
+  text-decoration: none;
+  font: 600 15px var(--font-ui);
+  border: 0;
+  cursor: pointer;
+  transition: transform 0.2s;
+  box-shadow: 0 6px 16px rgba(101, 14, 33, 0.2);
+}
+.btn:hover {
+  background: var(--acc2);
+  transform: none;
+}
+.btn.o {
+  background: transparent;
+  color: var(--acc);
+  border: 1.5px solid var(--acc);
+  box-shadow: none;
+}
+.btn.o:hover {
+  background: var(--acc);
+  color: #fff;
+}
+.cta {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-top: 22px;
+}
+
+/* Chips / pestañas */
+.chips {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-bottom: 20px;
+}
+.chip {
+  border: 1px solid var(--line);
+  background: var(--surf);
+  color: var(--ink);
+  padding: 8px 18px;
+  border-radius: 999px;
+  cursor: pointer;
+  font: 14px var(--font-ui);
+}
+.chip:hover {
+  border-color: var(--acc2);
+}
+.chip.on {
+  background: var(--acc2);
+  color: #fff;
+  border-color: var(--acc2);
+}
+.row {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-top: 12px;
+}
+
+/* Tarjetas y grillas */
+.grid {
+  display: grid;
+  gap: 16px;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+}
+.card {
+  background: var(--surf);
+  border: 1px solid var(--line);
+  border-radius: 18px;
+  padding: 26px;
+  transition: transform 0.25s, box-shadow 0.25s;
+}
+.card:hover {
+  transform: translateY(-3px);
+  box-shadow: var(--shadow-card);
+}
+.band .card {
+  background: var(--bg);
+}
+.card h3 {
+  font-size: 1.12rem;
+}
+.card p {
+  margin: 0;
+  color: var(--mut);
+  font: 14.5px/1.55 var(--font-ui);
+}
+.grid > .card:nth-child(6n + 1) {
+  border-top: 4px solid var(--weave-1);
+}
+.grid > .card:nth-child(6n + 2) {
+  border-top: 4px solid var(--weave-2);
+}
+.grid > .card:nth-child(6n + 3) {
+  border-top: 4px solid var(--weave-3);
+}
+.grid > .card:nth-child(6n + 4) {
+  border-top: 4px solid var(--weave-4);
+}
+.grid > .card:nth-child(6n + 5) {
+  border-top: 4px solid var(--weave-5);
+}
+.grid > .card:nth-child(6n + 6) {
+  border-top: 4px solid var(--weave-6);
+}
+
+/* Textos utilitarios */
+.num {
+  display: inline-grid;
+  place-items: center;
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  background: var(--acc2);
+  color: #fff;
+  border: 0;
+  font: 700 15px var(--font-ui);
+  margin-bottom: 10px;
+}
+.price {
+  font: 700 18px var(--font-ui);
+  color: var(--acc);
+}
+.tag {
+  font: 12px var(--font-ui);
+  color: var(--mut);
+}
+.big {
+  font-family: var(--font-display);
+  letter-spacing: -0.01em;
+  font-size: 2.3rem;
+  font-weight: 600;
+  color: var(--acc);
+}
+.note {
+  font: 13px var(--font-ui);
+  color: var(--mut);
+  margin-top: 16px;
+}
+.rg-e {
+  font: 600 12px var(--font-ui);
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--acc);
+  margin-bottom: 6px;
+}
+.kv {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 6px 16px;
+  margin: 16px 0;
+  font: 14.5px var(--font-ui);
+  color: var(--mut);
+}
+.kv b {
+  color: var(--ink);
+}
+
+/* Franja de tejido (rombos) */
+.tel {
+  height: 18px;
+  background-color: var(--gold);
+  background-image: linear-gradient(135deg, var(--acc) 25%, transparent 25%),
+    linear-gradient(225deg, var(--acc) 25%, transparent 25%),
+    linear-gradient(315deg, var(--acc2) 25%, transparent 25%),
+    linear-gradient(45deg, var(--acc2) 25%, transparent 25%);
+  background-size: 18px 18px;
+  background-position: -9px 0, -9px 0, 0 0, 0 0;
+}
+
+/* Accesibilidad */
+.skip {
+  position: absolute;
+  left: -999px;
+  top: 8px;
+}
+.skip:focus {
+  left: 12px;
+  z-index: 30;
+  background: #fff;
+  padding: 8px 14px;
+  border-radius: 8px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation: none !important;
+    transition: none !important;
+  }
+}

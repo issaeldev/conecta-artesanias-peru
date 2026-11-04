@@ -1,0 +1,21 @@
+.tb {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  align-items: center;
+  margin-bottom: 14px;
+}
+.tb input {
+  flex: 1;
+  min-width: 180px;
+  padding: 12px 20px;
+  border-radius: 999px;
+  border: 1px solid var(--line);
+  background: var(--surf);
+  color: var(--ink);
+  font: 15px var(--font-ui);
+}
+.tb small {
+  font: 12px var(--font-ui);
+  color: var(--mut);
+}

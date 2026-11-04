@@ -1,0 +1,19 @@
+.plans .card {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 30px;
+}
+.plans .feat {
+  border: 2px solid var(--gold);
+  box-shadow: var(--shadow-card);
+}
+.plans ul {
+  margin: 0;
+  padding-left: 18px;
+  color: var(--mut);
+  font: 14.5px/1.6 var(--font-ui);
+}
+.plans .big small {
+  font-size: 0.9rem;
+}

@@ -1,0 +1,20 @@
+.ln {
+  display: grid;
+  grid-template-columns: 1fr auto auto auto;
+  gap: 10px;
+  align-items: center;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--line);
+  font: 14.5px var(--font-ui);
+}
+.rmv {
+  border: 0;
+  background: none;
+  font-size: 20px;
+  cursor: pointer;
+  color: var(--mut);
+}
+.tot {
+  font: 15px var(--font-ui);
+  margin: 16px 0;
+}

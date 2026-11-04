@@ -1,0 +1,29 @@
+.mq {
+  background: var(--weave-1);
+  color: #fff;
+  overflow: hidden;
+  white-space: nowrap;
+  padding: 13px 0;
+  font: 700 14px var(--font-ui);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+.mt {
+  display: inline-block;
+  animation: mq 90s linear infinite;
+}
+.mq:hover .mt {
+  animation-play-state: paused;
+}
+.mt span {
+  margin: 0 16px;
+}
+.mt i {
+  color: #ffd666;
+  font-style: normal;
+}
+@keyframes mq {
+  to {
+    transform: translateX(-50%);
+  }
+}

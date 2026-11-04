@@ -1,0 +1,68 @@
+.modal {
+  position: fixed;
+  inset: 0;
+  z-index: 20;
+  background: rgba(29, 26, 23, 0.5);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+}
+.mb {
+  background: var(--bg);
+  border-radius: 22px;
+  max-width: 520px;
+  width: 100%;
+  max-height: 90vh;
+  overflow: auto;
+  padding: 28px;
+  position: relative;
+}
+.x {
+  position: absolute;
+  top: 10px;
+  right: 14px;
+  border: 0;
+  background: none;
+  font-size: 28px;
+  cursor: pointer;
+  color: var(--ink);
+}
+
+/* Formularios dentro de modales */
+.mb label {
+  display: block;
+  font: 600 13px var(--font-ui);
+  margin: 12px 0 4px;
+}
+.mb input {
+  width: 100%;
+  padding: 11px 14px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  font: 15px var(--font-ui);
+  background: #fff;
+  color: var(--ink);
+}
+
+/* Selector de cantidad */
+.qty {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  padding: 4px 8px;
+  background: #fff;
+}
+.qty button {
+  border: 0;
+  background: none;
+  font-size: 20px;
+  cursor: pointer;
+  width: 28px;
+  height: 28px;
+  color: var(--ink);
+}

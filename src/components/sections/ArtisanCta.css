@@ -1,0 +1,13 @@
+.cta2 {
+  padding: 84px 0;
+  text-align: center;
+  background: var(--bg);
+}
+.cta2 h2::after {
+  margin-inline: auto;
+}
+.cta2 p {
+  max-width: 520px;
+  margin: 0 auto 26px;
+  color: var(--hero-ink);
+}

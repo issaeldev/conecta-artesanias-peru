@@ -1,0 +1,73 @@
+.site-footer {
+  background: var(--acc);
+  color: #fff;
+  padding: 0;
+  font: 14px var(--font-ui);
+}
+.fg {
+  display: grid;
+  gap: 36px;
+  grid-template-columns: 1.6fr 1fr 1fr 1fr;
+  padding-top: 64px;
+  padding-bottom: 40px;
+}
+@media (max-width: 800px) {
+  .fg {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+@media (max-width: 520px) {
+  .fg {
+    grid-template-columns: 1fr;
+  }
+}
+.flogo {
+  font: 600 1.4rem "Bricolage Grotesque", system-ui, sans-serif;
+  margin-bottom: 10px;
+}
+.site-footer p {
+  margin: 0 0 18px;
+  color: rgba(255, 255, 255, 0.88);
+  max-width: 320px;
+  line-height: 1.55;
+}
+.site-footer h4 {
+  margin: 0 0 14px;
+  font: 700 12px var(--font-ui);
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--sun);
+}
+.site-footer a {
+  display: block;
+  color: #fff;
+  text-decoration: none;
+  opacity: 0.9;
+  padding: 4px 0;
+}
+.site-footer a:hover {
+  opacity: 1;
+  text-decoration: underline;
+}
+.soc {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.pill {
+  border: 1px solid rgba(255, 255, 255, 0.45);
+  border-radius: 999px;
+  padding: 5px 14px;
+  font-size: 13px;
+}
+.fbot {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+  border-top: 1px solid rgba(255, 255, 255, 0.22);
+  padding-top: 20px;
+  padding-bottom: calc(28px + env(safe-area-inset-bottom, 0px));
+  font-size: 13px;
+  color: rgba(255, 255, 255, 0.78);
+}

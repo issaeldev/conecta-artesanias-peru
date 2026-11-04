@@ -1,0 +1,9 @@
+/* Las tarjetas de confianza mantienen el fondo arena (aun dentro de la banda)
+   y alternan bordó y turquesa en el borde superior. */
+#confianza .card {
+  background: var(--surf);
+  border-top: 4px solid var(--acc);
+}
+#confianza .card:nth-child(even) {
+  border-top: 4px solid var(--acc2);
+}

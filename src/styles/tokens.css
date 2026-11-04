@@ -1,0 +1,35 @@
+/* Identidad visual: tokens de color y tipografía (valores finales del prototipo). */
+:root {
+  --bg: #f9f0e3; /* crema */
+  --surf: #e8dac9; /* arena */
+  --ink: #3b2027;
+  --mut: #765c5b;
+  --acc: #650e21; /* bordó */
+  --acc2: #128087; /* turquesa */
+  --gold: #ae564b; /* terracota */
+  --line: #d8c3ad;
+
+  --band: #efe3d5;
+  --hero-ink: #5a4a3c;
+  --sun: #ffe1a8;
+
+  /* Colores del tejido (rayas, marquesina, bordes de tarjetas) */
+  --weave-1: #d6196c;
+  --weave-2: #ffb81c;
+  --weave-3: #08808c;
+  --weave-4: #7b3fb0;
+  --weave-5: #ff7a2f;
+  --weave-6: #2fa05a;
+
+  --font-body: "DM Sans", system-ui, sans-serif;
+  --font-display: "Bricolage Grotesque", "DM Sans", system-ui, sans-serif;
+  --font-ui: system-ui, sans-serif;
+  --font-story: Georgia, "Times New Roman", serif;
+
+  --shadow-card: 0 14px 34px rgba(120, 80, 40, 0.14);
+
+  color-scheme: light;
+  box-sizing: border-box;
+  padding-top: env(safe-area-inset-top, 0px);
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+}

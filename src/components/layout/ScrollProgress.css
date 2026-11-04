@@ -1,0 +1,17 @@
+#sp {
+  position: fixed;
+  top: 0;
+  left: 0;
+  height: 4px;
+  width: 0;
+  z-index: 40;
+  background: linear-gradient(
+    90deg,
+    var(--weave-1),
+    var(--weave-5),
+    var(--weave-2),
+    var(--weave-6),
+    var(--weave-3),
+    var(--weave-4)
+  );
+}
