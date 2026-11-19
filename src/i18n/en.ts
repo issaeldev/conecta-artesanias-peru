@@ -40,10 +40,12 @@ export const en: Dictionary = {
   },
   profiles: {
     title: "Meet the artisans",
-    sub: "Sample profiles: the real details of each workshop will go here.",
-    badge: "Sample profile",
+    sub: "Behind every piece there are hands, a family and a story. These are some of them.",
     technique: "Technique",
     materials: "Materials",
+    years: "years of craft",
+    readStory: "Read their story",
+    pieces: "Their pieces",
   },
   journey: {
     title: "The journey of a piece",

@@ -23,8 +23,9 @@
 
   --font-body: "DM Sans", system-ui, sans-serif;
   --font-display: "Bricolage Grotesque", "DM Sans", system-ui, sans-serif;
-  --font-ui: system-ui, sans-serif;
-  --font-story: Georgia, "Times New Roman", serif;
+  /* Todo el texto usa la misma familia que el cuerpo; Bricolage queda solo para títulos. */
+  --font-ui: var(--font-body);
+  --font-story: var(--font-body);
 
   --shadow-card: 0 14px 34px rgba(120, 80, 40, 0.14);
 

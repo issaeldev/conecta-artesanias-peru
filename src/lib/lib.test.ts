@@ -39,7 +39,7 @@ describe("filterProducts", () => {
 
   it("busca por artesano, lugar o técnica sin distinguir mayúsculas", () => {
     expect(filterProducts(products, { category: "all", query: "QUINUA", locale: "es" })).toHaveLength(1);
-    expect(filterProducts(products, { category: "all", query: "tomás", locale: "es" })[0].id).toBe("mate-burilado");
+    expect(filterProducts(products, { category: "all", query: "julián", locale: "es" })[0].id).toBe("mate-burilado");
     expect(filterProducts(products, { category: "all", query: "nada-que-ver", locale: "es" })).toHaveLength(0);
   });
 });

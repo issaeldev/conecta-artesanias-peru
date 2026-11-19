@@ -69,7 +69,21 @@ export interface Workshop {
   title: Localized;
   technique: Localized;
   materials: Localized;
+  /** Resumen corto que se ve siempre en la tarjeta. */
   bio: Localized;
+  /** Nombre de quien lidera el taller. */
+  artisanName: Localized;
+  /** Comunidad o localidad, p. ej. "Chucuito, orillas del Titicaca". */
+  community: Localized;
+  yearsOfCraft: number;
+  /** Frase en primera persona del artesano. */
+  quote: Localized;
+  /** Historia completa, un párrafo por elemento. */
+  story: { es: string[]; en: string[] };
+  /** Foto de portada del taller (manos, telar, piezas). */
+  cover: { src: string; alt: Localized; position?: string };
+  /** Retrato del artesano. Si falta, se muestran sus iniciales. */
+  portrait?: string;
 }
 
 export interface JourneyStep {

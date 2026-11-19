@@ -1,24 +1,158 @@
+.pf-grid {
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  align-items: stretch;
+}
+/* Tarjetas de igual altura: el pie (técnica, años, piezas) siempre abajo */
 .pfc {
   position: relative;
+  padding: 0;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Foto de portada del taller */
+.pf-cover {
+  position: relative;
+  aspect-ratio: 1 / 1;
+  background: var(--band);
+}
+.pf-cover img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  transition: transform 0.6s ease;
+}
+.pfc:hover .pf-cover img {
+  transform: scale(1.04);
+}
+.pf-fallback {
+  width: 100%;
+  height: 100%;
+  display: grid;
+  place-items: center;
+  color: #fff3e3;
+  font: 800 3rem var(--font-display);
+  opacity: 0.9;
+}
+.pf-cover::after {
+  content: "";
+  position: absolute;
+  inset: auto 0 0 0;
+  height: 40%;
+  background: linear-gradient(to top, rgba(59, 32, 39, 0.35), transparent);
+  pointer-events: none;
+}
+
+.pf-body {
+  padding: 0 22px 24px;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+.pf-foot {
+  margin-top: auto;
+}
+
+/* Avatar + nombre */
+.pf-who {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  margin-bottom: 14px;
+  position: relative;
+  z-index: 1;
+}
+.pf-who > div:last-child {
+  padding-top: 12px;
 }
 .pfc .av {
+  flex: none;
+  margin-top: -32px;
   width: 64px;
   height: 64px;
   border-radius: 50%;
   overflow: hidden;
-  margin-bottom: 12px;
+  border: 3px solid var(--surf);
+  display: grid;
+  place-items: center;
+  color: #fff3e3;
+  font: 700 1.2rem var(--font-display);
 }
-.pfc .av svg {
+.pfc .av img {
   width: 100%;
   height: 100%;
+  object-fit: cover;
 }
-.badge {
-  position: absolute;
-  top: 16px;
-  right: 16px;
-  font: 600 11px var(--font-ui);
-  background: var(--gold);
+.pf-who h3 {
+  margin: 0;
   color: var(--ink);
-  padding: 3px 10px;
-  border-radius: 999px;
+  line-height: 1.2;
 }
+.pf-place {
+  font: 600 11.5px var(--font-ui);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--acc);
+  margin-top: 3px;
+}
+
+/* Cita */
+.pf-quote {
+  margin: 0 0 12px;
+  padding-left: 12px;
+  border-left: 3px solid var(--gold);
+  font: italic 1rem/1.5 var(--font-story);
+  color: var(--ink);
+}
+
+/* Enlace a la historia completa */
+.pf-more {
+  align-self: flex-start;
+  margin-top: 10px;
+  padding: 0;
+  border: 0;
+  background: none;
+  cursor: pointer;
+  font: 600 13.5px var(--font-ui);
+  color: var(--acc2);
+}
+.pf-more::after {
+  content: " →";
+}
+.pf-more:hover {
+  text-decoration: underline;
+}
+
+/* Historia completa en ventana emergente */
+.pf-modal-cover {
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  object-fit: cover;
+  border-radius: 14px;
+  margin-bottom: 16px;
+  display: block;
+}
+.pf-modal h3 {
+  margin: 0;
+}
+.pf-modal .pf-place {
+  margin-bottom: 14px;
+}
+.pf-modal p {
+  margin: 0 0 12px;
+  color: var(--mut);
+  font: 15px/1.6 var(--font-ui);
+}
+
+.pf-years {
+  font: 13px var(--font-ui);
+  color: var(--mut);
+}
+.pf-years strong {
+  font: 700 1.3rem var(--font-display);
+  color: var(--acc);
+  margin-right: 2px;
+}
+

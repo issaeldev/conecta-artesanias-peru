@@ -39,10 +39,12 @@ export const es = {
   },
   profiles: {
     title: "Conoce a los artesanos",
-    sub: "Perfiles de ejemplo: aquí irán los datos reales de cada taller.",
-    badge: "Perfil de ejemplo",
+    sub: "Detrás de cada pieza hay unas manos, una familia y una historia. Estas son algunas de ellas.",
     technique: "Técnica",
     materials: "Materiales",
+    years: "años de oficio",
+    readStory: "Leer su historia",
+    pieces: "Sus piezas",
   },
   journey: {
     title: "El camino de una pieza",
