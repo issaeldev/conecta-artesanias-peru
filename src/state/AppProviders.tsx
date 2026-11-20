@@ -3,6 +3,7 @@ import { I18nProvider } from "@/i18n/I18nProvider";
 import { CatalogProvider } from "./CatalogProvider";
 import { CartProvider } from "./CartProvider";
 import { CurrencyProvider } from "./CurrencyProvider";
+import { OrdersProvider } from "./OrdersProvider";
 import { ProductModalProvider } from "./ProductModalProvider";
 
 export function AppProviders({ children }: { children: ReactNode }) {
@@ -11,7 +12,9 @@ export function AppProviders({ children }: { children: ReactNode }) {
       <CatalogProvider>
         <CurrencyProvider>
           <CartProvider>
-            <ProductModalProvider>{children}</ProductModalProvider>
+            <OrdersProvider>
+              <ProductModalProvider>{children}</ProductModalProvider>
+            </OrdersProvider>
           </CartProvider>
         </CurrencyProvider>
       </CatalogProvider>

@@ -1,7 +1,9 @@
 import { useEffect, useState } from "react";
 import { siteConfig } from "@/config/site";
 import { useI18n } from "@/i18n/I18nProvider";
-import { useWhatsApp } from "@/hooks/useWhatsApp";
+import { openAssistant } from "@/components/assistant/assistantBus";
+import { navigate, paths } from "@/hooks/useRoute";
+import { ShieldIcon } from "@/components/checkout/Guarantee";
 import { useCart } from "@/state/CartProvider";
 import { useCatalog } from "@/state/CatalogProvider";
 import { useCurrency } from "@/state/CurrencyProvider";
@@ -18,7 +20,6 @@ export function ProductDetailModal() {
   const { getProduct } = useCatalog();
   const { format } = useCurrency();
   const cart = useCart();
-  const wa = useWhatsApp();
   const [quantity, setQuantity] = useState(1);
 
   useEffect(() => setQuantity(1), [productId]);
@@ -101,9 +102,29 @@ export function ProductDetailModal() {
           {p.addToOrder} · S/ {product.price}
         </button>
       </div>
-      <a className="btn o" href={wa(p.askMessage + name)} target="_blank" rel="noopener">
+      <button
+        className="btn o"
+        type="button"
+        onClick={() => {
+          closeProduct();
+          navigate(paths.customForm(product.id));
+        }}
+      >
+        ✎ {t.custom.button}
+      </button>
+      <p className="guarantee-line">
+        <ShieldIcon /> {p.guarantee}
+      </p>
+      <button
+        className="btn o"
+        type="button"
+        onClick={() => {
+          closeProduct();
+          openAssistant();
+        }}
+      >
         {p.askWhatsApp}
-      </a>
+      </button>
     </Modal>
   );
 }

@@ -1,0 +1,362 @@
+/* Checkout y resumen de pago (también se reutiliza en la página del pedido). */
+.co-page {
+  padding: 32px 0 96px;
+}
+.co-page h1 {
+  font-size: clamp(1.8rem, 4vw, 2.4rem);
+  margin: 0;
+}
+.co-back {
+  display: inline-block;
+  font: 600 14px var(--font-ui);
+  color: var(--acc);
+  text-decoration: none;
+  margin-bottom: 14px;
+}
+.co-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+.co-demo {
+  font: 13.5px var(--font-ui);
+  color: var(--mut);
+  margin: 6px 0 24px;
+}
+.co-empty {
+  text-align: center;
+  padding: 40px 20px;
+}
+
+.co {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 380px;
+  gap: 28px;
+  align-items: start;
+}
+@media (max-width: 900px) {
+  .co {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+.co fieldset {
+  border: 1px solid var(--line);
+  border-radius: 18px;
+  background: #fffaf3;
+  padding: 18px 20px 20px;
+  margin: 0 0 18px;
+  min-width: 0;
+}
+.co legend {
+  font: 700 15px var(--font-display);
+  padding: 0 6px;
+  color: var(--acc);
+}
+.field {
+  margin-top: 12px;
+  min-width: 0;
+}
+.field label {
+  display: block;
+  font: 600 13px var(--font-ui);
+  margin-bottom: 4px;
+}
+.field input,
+.field select {
+  width: 100%;
+  padding: 11px 14px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  font: 15px var(--font-ui);
+  background: #fff;
+  color: var(--ink);
+}
+.field.bad input,
+.field.bad select {
+  border-color: #b3261e;
+  background: #fff6f5;
+}
+.err {
+  display: block;
+  color: #b3261e;
+  font: 600 12.5px var(--font-ui);
+  margin-top: 4px;
+}
+.pair {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0 14px;
+}
+@media (max-width: 520px) {
+  .pair {
+    grid-template-columns: 1fr;
+  }
+}
+.hint {
+  font: 13px/1.5 var(--font-ui);
+  color: var(--mut);
+  margin: 10px 0 0;
+}
+.eta {
+  display: inline-block;
+  margin: 12px 0 0;
+  padding: 6px 12px;
+  border-radius: 999px;
+  background: #e3f2ef;
+  color: #0b5f64;
+  font: 600 13.5px var(--font-ui);
+}
+
+/* Medio de pago */
+.paym {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin-top: 8px;
+}
+.paym-opt {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  border: 1.5px solid var(--line);
+  border-radius: 12px;
+  padding: 12px;
+  cursor: pointer;
+  background: #fff;
+  font: 600 14px var(--font-ui);
+}
+.paym-opt.on {
+  border-color: var(--acc2);
+  box-shadow: 0 0 0 3px rgba(18, 128, 135, 0.15);
+}
+.paym-opt input {
+  accent-color: var(--acc2);
+}
+.paym-ico {
+  display: inline-grid;
+  place-items: center;
+  width: 30px;
+  height: 22px;
+  border-radius: 5px;
+  font: 800 13px var(--font-ui);
+  color: #fff;
+  background: #3b4a6b;
+}
+.paym-ico.yape {
+  background: #742284;
+}
+
+/* Resumen */
+.co-sum {
+  position: sticky;
+  top: 80px;
+  background: #fff;
+  border: 1px solid var(--line);
+  border-radius: 20px;
+  padding: 20px;
+  box-shadow: var(--shadow-card);
+}
+.co-sum-title {
+  font-size: 1.25rem;
+}
+.co-sum-title::after {
+  display: none;
+}
+.co-group {
+  border-bottom: 1px dashed var(--line);
+  padding-bottom: 10px;
+  margin-bottom: 10px;
+}
+.co-group-head {
+  font: 700 12px var(--font-ui);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--mut);
+  margin: 0 0 6px;
+}
+.co-line {
+  display: grid;
+  grid-template-columns: 48px 1fr auto;
+  gap: 10px;
+  align-items: center;
+  font: 14px/1.35 var(--font-ui);
+  padding: 4px 0;
+}
+.co-line img {
+  width: 48px;
+  height: 48px;
+  border-radius: 10px;
+  object-fit: cover;
+}
+.co-line small {
+  display: block;
+  color: var(--mut);
+}
+.co-pay {
+  width: 100%;
+  margin-top: 14px;
+  font-size: 16px;
+}
+.co-pay:disabled {
+  opacity: 0.75;
+  cursor: progress;
+}
+.co-secure {
+  font: 12.5px/1.5 var(--font-ui);
+  color: var(--mut);
+  margin: 10px 0 0;
+}
+
+.paysum dl {
+  margin: 0;
+}
+.paysum dl > div {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  font: 14.5px var(--font-ui);
+  padding: 4px 0;
+}
+.paysum dd {
+  margin: 0;
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+}
+.paysum-total {
+  border-top: 1px solid var(--line);
+  margin-top: 6px;
+  padding-top: 10px !important;
+  font-weight: 700;
+  font-size: 18px !important;
+}
+.money {
+  margin-top: 14px;
+  background: var(--band);
+  border-radius: 14px;
+  padding: 14px;
+}
+.money-title {
+  font: 700 14px var(--font-ui);
+  margin: 0 0 10px;
+}
+.money-bar {
+  display: flex;
+  height: 12px;
+  border-radius: 999px;
+  overflow: hidden;
+  gap: 2px;
+  margin-bottom: 10px;
+}
+.money-bar span {
+  flex-basis: 0;
+}
+.seg-artisan {
+  background: var(--acc2);
+}
+.seg-commission {
+  background: var(--gold);
+}
+.seg-igv {
+  background: #c9b39b;
+}
+.money-rows > div {
+  font-size: 13.5px !important;
+}
+.dot {
+  display: inline-block;
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  margin-right: 4px;
+}
+.money-share {
+  font: 600 13.5px/1.45 var(--font-ui);
+  color: #0b5f64;
+  margin: 10px 0 4px;
+}
+.money-note {
+  font: 12.5px/1.45 var(--font-ui);
+  color: var(--mut);
+  margin: 0;
+}
+
+/* Logos de pago */
+.paym-opt {
+  flex-wrap: wrap;
+}
+.paym-logos {
+  display: inline-flex;
+  gap: 4px;
+}
+.paym-logos svg {
+  display: block;
+  border-radius: 4px;
+}
+.paym-name {
+  flex: 1 1 100%;
+  font-size: 13.5px;
+}
+@media (min-width: 640px) {
+  .paym-name {
+    flex: 1;
+  }
+}
+
+/* Envío internacional */
+.customs {
+  font: 13px/1.5 var(--font-ui);
+  background: #fff4e0;
+  border: 1px solid #f0d7a8;
+  border-radius: 10px;
+  padding: 8px 12px;
+  margin: 10px 0 0;
+  color: #6b4a12;
+}
+.co-usd {
+  font: 12.5px var(--font-ui);
+  color: var(--mut);
+  margin: 8px 0 0;
+  text-align: right;
+}
+
+/* Servicio Conecta */
+.money-sub {
+  display: block;
+  font-size: 11.5px;
+  color: var(--mut);
+  margin-left: 17px;
+}
+
+/* Garantía Conecta */
+.guarantee {
+  margin-top: 14px;
+  border: 1px solid #b7dcd5;
+  background: #f0f8f6;
+  border-radius: 14px;
+  padding: 12px 14px;
+  font: 13px/1.45 var(--font-ui);
+}
+.guarantee-title {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin: 0 0 6px;
+  font: 700 14px var(--font-ui);
+  color: #0b5f64;
+}
+.guarantee ul {
+  margin: 0;
+  padding-left: 18px;
+}
+.guarantee li + li {
+  margin-top: 3px;
+}
+.guarantee-only {
+  margin: 8px 0 0;
+  font-size: 12px;
+  font-weight: 600;
+  color: #0b5f64;
+}

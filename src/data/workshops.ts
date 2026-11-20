@@ -45,6 +45,12 @@ export const workshops: Workshop[] = [
         "For years she sold her blankets to middlemen for almost nothing. Now, when someone buys one of her pieces, Rosa knows the money reaches her home in full, and that her daughters won't have to leave for the city to get ahead.",
       ],
     },
+    whatsappMasked: "+51 9•• ••• 815",
+    payoutAccount: "Caja Arequipa ****4821",
+    handover: {
+      pickupAvailable: false,
+      dropOff: { name: "Agencia Olva Courier · Puno", address: "Jr. Lima 425, Puno (referencial)", hours: "lun a sáb, 9:00 a 18:00" },
+    },
   },
   {
     id: "taller-ayacucho",
@@ -81,6 +87,12 @@ export const workshops: Workshop[] = [
         "Yesenia grew up surrounded by the smell of glue and paint. At twelve she was already painting the eyes of the smallest saints; today she travels to Quinua every week to work the clay and decorate vases with the fretwork her father taught her to draw freehand.",
         "A three-tier retablo takes them up to ten days. Every figure, from the musician to the little cow, is modeled one by one. When one of their retablos arrives in a new home, Teodoro feels a piece of his village travels with it.",
       ],
+    },
+    whatsappMasked: "+51 9•• ••• 207",
+    payoutAccount: "BCP ****1907",
+    handover: {
+      pickupAvailable: true,
+      dropOff: { name: "Agencia Olva Courier · Huamanga", address: "Jr. 28 de Julio 312, Ayacucho (referencial)", hours: "lun a sáb, 9:00 a 19:00" },
     },
   },
   {
@@ -119,6 +131,12 @@ export const workshops: Workshop[] = [
         "With what they earn, two of the women have already paid for their children's university. Lucía dreams of a small shop in town where travelers can watch them weave, and that one day one of her daughters will want to follow the path.",
       ],
     },
+    whatsappMasked: "+51 9•• ••• 654",
+    payoutAccount: "Yape ****654",
+    handover: {
+      pickupAvailable: false,
+      dropOff: { name: "Agencia Olva Courier · Urubamba", address: "Av. Mariscal Castilla 210, Urubamba (referencial)", hours: "lun a sáb, 9:00 a 18:00" },
+    },
   },
   {
     id: "taller-junin",
@@ -155,6 +173,12 @@ export const workshops: Workshop[] = [
         "A large gourd takes him up to three weeks. He draws without a sketch, straight onto the shell, then scorches some areas with a glowing quinual twig to give them that toasted color. If he makes a mistake there is no eraser: the error becomes part of the story.",
         "His eyesight isn't what it was, so he teaches his grandson Kevin patiently, the way he was taught. \"As long as someone in the family picks up the burin, Cochas will keep telling its story,\" he says with a smile.",
       ],
+    },
+    whatsappMasked: "+51 9•• ••• 391",
+    payoutAccount: "Caja Huancayo ****3302",
+    handover: {
+      pickupAvailable: true,
+      dropOff: { name: "Agencia Olva Courier · Huancayo", address: "Jr. Ica 540, Huancayo (referencial)", hours: "lun a sáb, 8:30 a 19:00" },
     },
   },
 ];

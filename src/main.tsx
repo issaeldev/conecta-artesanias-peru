@@ -5,11 +5,14 @@ import "./styles/tokens.css";
 import "./styles/base.css";
 import App from "./App";
 import { AppProviders } from "./state/AppProviders";
+import { ErrorBoundary } from "./components/ui/ErrorBoundary";
 
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
-    <AppProviders>
-      <App />
-    </AppProviders>
+    <ErrorBoundary>
+      <AppProviders>
+        <App />
+      </AppProviders>
+    </ErrorBoundary>
   </StrictMode>,
 );

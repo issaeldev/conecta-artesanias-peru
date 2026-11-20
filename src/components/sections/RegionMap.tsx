@@ -5,22 +5,12 @@ import { useProductModal } from "@/state/ProductModalProvider";
 import { Card } from "@/components/ui/Card";
 import { Chip } from "@/components/ui/Chip";
 import { SectionHeading } from "@/components/ui/SectionHeading";
+import { ANDES_POINTS, LIMA, PEAK_POINTS, PERU_PATH, REGION_POSITIONS, TITICACA_PATH } from "@/lib/peruMap";
 import type { Region } from "@/types/domain";
 import "./RegionMap.css";
 
 const AUTOPLAY_MS = 5500;
 const FADE_MS = 160;
-
-/** Silueta referencial del Perú (viewBox 320×460). */
-const PERU_PATH =
-  "M29 84L46 108L62 113L77 84L89 72L132 60L149 38L149 5L170 20L204 48L264 84L277 98L262 118L254 146L211 182L199 218L223 242L259 266L286 265L307 269L302 302L286 319L300 350L295 374L300 394L288 415L288 422L266 442L240 418L216 396L185 372L151 338L122 319L106 290L79 254L58 209L38 170L10 130L5 108L14 94Z";
-const MOUNTAINS = [
-  [95, 196],
-  [115, 250],
-  [135, 320],
-  [180, 372],
-  [240, 402],
-];
 
 export function RegionMap() {
   const { t, locale } = useI18n();
@@ -85,31 +75,42 @@ export function RegionMap() {
                 strokeLinejoin="round"
                 d={PERU_PATH}
               />
+              <path d={TITICACA_PATH} fill="#9fd3dc" stroke="#5aa9b5" strokeWidth="1" />
               <polyline
-                points="75,130 95,200 118,262 140,325 185,375 245,405"
+                points={ANDES_POINTS}
+                fill="none"
+                stroke="#c98b5f"
+                strokeWidth="9"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                opacity=".18"
+              />
+              <polyline
+                points={ANDES_POINTS}
                 fill="none"
                 stroke="#c98b5f"
                 strokeWidth="1.5"
                 strokeDasharray="4 5"
                 opacity=".7"
               />
-              {MOUNTAINS.map(([x, y]) => (
+              {PEAK_POINTS.map(([x, y]) => (
                 <polygon
                   key={`${x}-${y}`}
-                  points={`${x},${y} ${x - 8},${y + 14} ${x + 8},${y + 14}`}
+                  points={`${x},${y - 9} ${x - 6},${y + 3} ${x + 6},${y + 3}`}
                   fill="#c98b5f"
-                  opacity=".5"
+                  opacity=".6"
                 />
               ))}
-              <text x="10" y="300" fontSize="11" fontStyle="italic" fill="#4f8d92">
+              <text x="22" y="350" fontSize="11" fontStyle="italic" fill="#4f8d92">
                 {t.map.ocean}
               </text>
-              <circle cx="108" cy="290" r="3.5" fill="#6e5a63" />
-              <text x="100" y="294" textAnchor="end" fontSize="11" fill="#6e5a63">
+              <circle cx={LIMA[0]} cy={LIMA[1]} r="3.5" fill="#6e5a63" />
+              <text x={LIMA[0] - 7} y={LIMA[1] + 4} textAnchor="end" fontSize="11" fill="#6e5a63">
                 {t.map.capital}
               </text>
               {regions.map((r, k) => {
-                const { x, y, labelSide } = r.map;
+                const [x, y] = REGION_POSITIONS[r.id] ?? [r.map.x, r.map.y];
+                const { labelSide } = r.map;
                 return (
                   <g
                     key={r.id}

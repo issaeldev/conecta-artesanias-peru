@@ -1,0 +1,107 @@
+/* Pedido personalizado: formulario y solicitud */
+.cr-product {
+  display: flex;
+  gap: 16px;
+  align-items: flex-start;
+  background: #fff;
+  border: 1px solid var(--line);
+  border-radius: 18px;
+  padding: 14px;
+  margin: 8px 0 20px;
+}
+.cr-product img {
+  width: 96px;
+  height: 96px;
+  flex: none;
+  border-radius: 14px;
+  object-fit: cover;
+}
+.cr-name {
+  margin: 0;
+  font: 700 17px var(--font-display);
+}
+.cr-meta {
+  margin: 2px 0 6px;
+  font: 13px var(--font-ui);
+  color: var(--mut);
+}
+.cr-intro {
+  margin: 0;
+  font: 14px/1.5 var(--font-ui);
+}
+.cr-form {
+  grid-template-columns: minmax(0, 680px);
+}
+.co .field textarea {
+  width: 100%;
+  padding: 11px 14px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  font: 15px var(--font-ui);
+  background: #fff;
+  color: var(--ink);
+  resize: vertical;
+}
+.cr-qty {
+  max-width: 140px;
+}
+
+.cr-asked {
+  display: flex;
+  gap: 14px;
+  align-items: flex-start;
+}
+.cr-asked img {
+  width: 64px;
+  height: 64px;
+  flex: none;
+  border-radius: 12px;
+  object-fit: cover;
+}
+.cr-tag {
+  display: inline-block;
+  margin-left: 6px;
+  padding: 1px 9px;
+  border-radius: 999px;
+  background: var(--gold);
+  color: #fff;
+  font: 700 11px var(--font-ui);
+  vertical-align: middle;
+}
+.cr-details {
+  list-style: none;
+  padding: 0;
+  margin: 4px 0 0;
+  font: 14px/1.5 var(--font-ui);
+}
+.steps.steps-4 {
+  grid-template-columns: repeat(4, 1fr);
+}
+
+.quote {
+  margin-top: 14px;
+  border: 1.5px solid var(--acc2);
+  border-radius: 16px;
+  padding: 14px 16px;
+  background: #f4faf8;
+}
+.quote-title {
+  margin: 0;
+  font: 700 13px var(--font-ui);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: #0b5f64;
+}
+.quote-price {
+  margin: 4px 0 6px;
+  font: 700 26px var(--font-display);
+}
+.quote ul {
+  margin: 0;
+  padding-left: 18px;
+  font: 14px/1.6 var(--font-ui);
+}
+.quote-fair {
+  color: #0b5f64;
+  font-weight: 600;
+}

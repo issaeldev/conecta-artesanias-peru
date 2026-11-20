@@ -84,6 +84,17 @@ export interface Workshop {
   cover: { src: string; alt: Localized; position?: string };
   /** Retrato del artesano. Si falta, se muestran sus iniciales. */
   portrait?: string;
+  /** WhatsApp del artesano, enmascarado para mostrarlo en capturas (dato simulado). */
+  whatsappMasked: string;
+  /** Cuenta donde recibe sus pagos, enmascarada (dato simulado). */
+  payoutAccount: string;
+  /** Cómo entrega sus paquetes al courier (datos simulados). */
+  handover: {
+    /** Si el courier llega a recoger a su taller. */
+    pickupAvailable: boolean;
+    /** Agencia más cercana donde puede dejar el paquete. */
+    dropOff: { name: string; address: string; hours: string };
+  };
 }
 
 export interface JourneyStep {
