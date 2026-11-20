@@ -8,6 +8,7 @@ import {
   type PlaceOrderInput,
 } from "@/lib/orders";
 import {
+  applyCounter,
   applyRequestReply,
   createRequest,
   declineRequest,
@@ -31,6 +32,7 @@ interface OrdersValue {
   getRequest: (id: string) => CustomRequest | undefined;
   sendRequest: (input: NewRequestInput) => CustomRequest;
   requestReply: (requestId: string, reply: RequestReply) => void;
+  counterRequest: (requestId: string, buyerPrice: number) => void;
   acceptRequest: (requestId: string, orderId: string) => void;
   declineQuote: (requestId: string) => void;
   resetDemo: () => void;
@@ -132,6 +134,7 @@ export function OrdersProvider({ children }: { children: ReactNode }) {
       getRequest: (id) => requests.find((r) => r.id === id),
       sendRequest,
       requestReply: (requestId, reply) => updateRequest(requestId, (r) => applyRequestReply(r, reply)),
+      counterRequest: (requestId, buyerPrice) => updateRequest(requestId, (r) => applyCounter(r, buyerPrice)),
       acceptRequest: (requestId, orderId) => updateRequest(requestId, (r) => markRequestAccepted(r, orderId)),
       declineQuote: (requestId) => updateRequest(requestId, (r) => declineRequest(r)),
       resetDemo: () => {

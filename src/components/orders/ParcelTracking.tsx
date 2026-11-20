@@ -1,5 +1,7 @@
 import { siteConfig } from "@/config/site";
 import { findCountry } from "@/data/countries";
+import { workshops } from "@/data/workshops";
+import type { Currency } from "@/types/domain";
 import { useI18n } from "@/i18n/I18nProvider";
 import {
   awaitingBuyerDecision,
@@ -66,6 +68,8 @@ export function ParcelTracking({ order, parcel, index, count }: Props) {
   const reasonEvent = findEvent(parcel, "delay_reason");
   const courierDelay = findEvent(parcel, "courier_delay");
   const decision = awaitingBuyerDecision(parcel);
+  const displayCurrency: Currency = locale === "en" || order.currency === "USD" ? "USD" : "PEN";
+  const community = workshops.find((w) => w.id === parcel.workshopId)?.community[locale].split(",")[0] ?? parcel.community;
   const status = parcelStatus(parcel);
   const cancelled = status === "cancelled";
   const done = cancelled ? -1 : doneIndex[status];
@@ -73,9 +77,9 @@ export function ParcelTracking({ order, parcel, index, count }: Props) {
   const vars = {
     artisan: parcel.artisanFirstName,
     courier: parcel.courier,
-    community: parcel.community,
+    community,
     region: parcel.regionName,
-    amount: formatAmount(parcelTotal(parcel), order.currency, siteConfig.penPerUsd),
+    amount: formatAmount(parcelTotal(parcel), displayCurrency, siteConfig.penPerUsd),
     date: formatDay(parcel.dispatchBy, locale),
     intlCourier: parcel.intlCourier,
     intlCode: parcel.intlTrackingCode,
@@ -108,7 +112,7 @@ export function ParcelTracking({ order, parcel, index, count }: Props) {
           <p className="parcel-from">
             {fill(o.fromWorkshop, {
               artisan: parcel.artisanFirstName,
-              community: parcel.community,
+              community,
               region: parcel.regionName,
             })}
           </p>
@@ -183,7 +187,7 @@ export function ParcelTracking({ order, parcel, index, count }: Props) {
         </div>
       )}
 
-      {!cancelled && <PayoutTrace order={order} parcel={parcel} paidOut={paidOut} />}
+      {!cancelled && <PayoutTrace order={order} parcel={parcel} paidOut={paidOut} currency={displayCurrency} />}
 
       <details className="history">
         <summary>{o.history}</summary>
@@ -214,10 +218,12 @@ function PayoutTrace({
   order,
   parcel,
   paidOut,
+  currency,
 }: {
   order: Order;
   parcel: Parcel;
   paidOut?: Extract<ParcelEvent, { type: "paid_out" }>;
+  currency: Currency;
 }) {
   const { t, locale } = useI18n();
   const p = t.order.payout;
@@ -226,7 +232,7 @@ function PayoutTrace({
   const artisanPen = parcelArtisanAmount(parcel);
   // El artesano cobra en soles; al comprador extranjero le mostramos también el equivalente.
   const artisanAmount =
-    order.currency === "USD"
+    currency === "USD"
       ? `${formatPen(artisanPen)} (≈ ${formatAmount(artisanPen, "USD", siteConfig.penPerUsd)})`
       : formatPen(artisanPen);
   const v = { artisan: parcel.artisanFirstName, artisanAmount, account: parcel.payoutAccount };
@@ -236,7 +242,7 @@ function PayoutTrace({
       done: true,
       title: p.received,
       body: fill(p.receivedBody, {
-        amount: formatAmount(parcelTotal(parcel), order.currency, siteConfig.penPerUsd),
+        amount: formatAmount(parcelTotal(parcel), currency, siteConfig.penPerUsd),
         date: formatDay(order.createdAt, locale),
       }),
     },

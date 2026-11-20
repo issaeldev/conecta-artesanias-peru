@@ -13,6 +13,7 @@ import type {
   ParcelStatus,
   PaymentMethod,
 } from "@/types/order";
+import type { Currency } from "@/types/domain";
 import { splitPrice, sumBreakdowns } from "./pricing";
 
 const { pricing, logistics } = siteConfig;
@@ -92,6 +93,7 @@ export interface CartEntry {
 
 export interface PlaceOrderInput {
   customer: Customer;
+  currency?: Currency;
   payment: { method: PaymentMethod; detail: string };
   entries: CartEntry[];
   workshops: Workshop[];
@@ -168,7 +170,7 @@ export function createOrder(input: PlaceOrderInput, now = new Date(), random: ()
     createdAt: at,
     customer: input.customer,
     international: quote.international,
-    currency: quote.international ? "USD" : "PEN",
+    currency: input.currency ?? (quote.international ? "USD" : "PEN"),
     payment: input.payment,
     parcels,
     totals: {

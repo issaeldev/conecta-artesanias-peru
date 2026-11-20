@@ -4,7 +4,7 @@ import { useI18n } from "@/i18n/I18nProvider";
 import { buildRequestChat, requestReplyLabel } from "@/lib/artisanChat";
 import { addBusinessDays, isInternational, shippingQuote } from "@/lib/orders";
 import { formatAmount, formatPen } from "@/lib/pricing";
-import { availableRequestReplies, requestQuote, requestStatus } from "@/lib/requests";
+import { availableRequestReplies, counterDecision, counterRange, requestDetailText, requestQuote, requestStatus } from "@/lib/requests";
 import { fill, formatDateTime, formatDay } from "@/lib/text";
 import { navigate, paths } from "@/hooks/useRoute";
 import { useOrders } from "@/state/OrdersProvider";
@@ -18,7 +18,7 @@ import "./Custom.css";
 const STEPS = ["sent", "reviewing", "quoted", "paid"] as const;
 const doneIndex = { awaiting_artisan: 0, awaiting_quote: 1, quoted: 2, accepted: 3 } as const;
 
-type MailKind = "received" | "quote" | "rejected";
+type MailKind = "received" | "quote" | "rejected" | "counter";
 interface Mail {
   id: string;
   kind: MailKind;
@@ -29,8 +29,10 @@ interface Mail {
 function requestMails(req: CustomRequest): Mail[] {
   const list: Mail[] = [];
   req.events.forEach((e, i) => {
-    const kind: MailKind | null =
-      e.type === "created" ? "received" : e.type === "quoted" ? "quote" : e.type === "cannot_do" ? "rejected" : null;
+    const kind: MailKind | null = e.type === "created" ? "received"
+      : e.type === "quoted" ? "quote"
+      : e.type === "cannot_do" ? "rejected"
+      : e.type === "counter_reply" ? "counter" : null;
     if (kind) list.push({ id: `${req.id}-${i}`, kind, at: e.at });
   });
   return list.reverse();
@@ -40,9 +42,12 @@ function requestMails(req: CustomRequest): Mail[] {
 export function RequestPage({ id }: { id: string }) {
   const { t, locale } = useI18n();
   const c = t.custom;
-  const { getRequest, requestReply, declineQuote } = useOrders();
+  const { getRequest, requestReply, declineQuote, counterRequest } = useOrders();
   const [view, setView] = useState<"buyer" | "artisan">("buyer");
   const [openMail, setOpenMail] = useState<Mail | null>(null);
+  const [counterOpen, setCounterOpen] = useState(false);
+  const [counterPrice, setCounterPrice] = useState("");
+  const [counterError, setCounterError] = useState(false);
   const req = getRequest(id);
 
   if (!req) {
@@ -61,9 +66,14 @@ export function RequestPage({ id }: { id: string }) {
 
   const status = requestStatus(req);
   const quote = requestQuote(req);
+  const counter = req.events.find((e) => e.type === "counter");
+  const decision = counterDecision(req);
   const accepted = req.events.find((e) => e.type === "accepted");
-  const currency = isInternational(req.customer.country) ? "USD" : "PEN";
+  const currency = locale === "en" || isInternational(req.customer.country) ? "USD" : "PEN";
   const money = (n: number) => formatAmount(n, currency, siteConfig.penPerUsd);
+  const counterRangePen = counterRange(req);
+  const counterToDisplay = (pen: number) => currency === "USD" ? pen / siteConfig.penPerUsd : pen;
+  const counterToPen = (amount: number) => currency === "USD" ? amount * siteConfig.penPerUsd : amount;
   const first = req.customer.name.split(" ")[0];
   const vars = {
     artisan: req.artisanFirstName,
@@ -73,6 +83,8 @@ export function RequestPage({ id }: { id: string }) {
     product: req.productName[locale],
     price: quote ? money(quote.buyerPrice) : "",
     days: quote?.days ?? 0,
+    counter: counter && counter.type === "counter" ? money(counter.buyerPrice) : "",
+    result: decision ? c.results[decision] : "",
   };
   const now = c.now[status];
   const done = status in doneIndex ? doneIndex[status as keyof typeof doneIndex] : -1;
@@ -137,17 +149,17 @@ export function RequestPage({ id }: { id: string }) {
                   <ul className="cr-details">
                     {req.details.size && (
                       <li>
-                        <b>{t.custom.size}:</b> {req.details.size}
+                        <b>{t.custom.size}:</b> {requestDetailText(req.details.size, locale)}
                       </li>
                     )}
                     {req.details.colors && (
                       <li>
-                        <b>{t.custom.colors}:</b> {req.details.colors}
+                        <b>{t.custom.colors}:</b> {requestDetailText(req.details.colors, locale)}
                       </li>
                     )}
                     {req.details.notes && (
                       <li>
-                        <b>{t.custom.notes}:</b> {req.details.notes}
+                        <b>{t.custom.notes}:</b> {requestDetailText(req.details.notes, locale)}
                       </li>
                     )}
                     <li>{fill(c.quantityLine, { n: req.quantity })}</li>
@@ -176,7 +188,7 @@ export function RequestPage({ id }: { id: string }) {
                 </div>
               </div>
 
-              {quote && (status === "quoted" || status === "accepted") && (
+              {quote && (status === "quoted" || status === "countered" || status === "accepted") && (
                 <div className="quote">
                   <p className="quote-title">{fill(c.quoteTitle, vars)}</p>
                   <p className="quote-price">{fill(c.perPiece, { price: money(quote.buyerPrice) })}</p>
@@ -185,6 +197,10 @@ export function RequestPage({ id }: { id: string }) {
                     {eta && status === "quoted" && <li>{fill(c.deliveryEta, { date: formatDay(eta.toISOString(), locale) })}</li>}
                     <li className="quote-fair">{fill(c.artisanGets, { ...vars, amount: formatPen(quote.artisanPrice) })}</li>
                   </ul>
+                  {status === "countered" && counter && counter.type === "counter" && (
+                    <p className="counter-yours">{fill(c.counterYours, { price: money(counter.buyerPrice) })}</p>
+                  )}
+                  {decision && <p className="counter-result">{fill(c.counterResult[decision], vars)} {c.finalNote}</p>}
                   {status === "quoted" && (
                     <>
                       <p className="hint">{c.shippingNote}</p>
@@ -196,6 +212,15 @@ export function RequestPage({ id }: { id: string }) {
                           {c.decline}
                         </button>
                       </div>
+                      {status === "quoted" && !req.events.some((event) => event.type === "counter") && (
+                        <button className="btn o counter-offer-btn" type="button" onClick={() => {
+                          setCounterPrice(currency === "USD" ? counterToDisplay(counterRangePen.max).toFixed(2) : String(counterRangePen.max));
+                          setCounterError(false);
+                          setCounterOpen(true);
+                        }}>
+                          {c.counter}
+                        </button>
+                      )}
                     </>
                   )}
                 </div>
@@ -270,6 +295,31 @@ export function RequestPage({ id }: { id: string }) {
               <p className="mail-sign">{t.order.emails.sign}</p>
             </div>
           </div>
+        </Modal>
+      )}
+      {counterOpen && quote && (
+        <Modal open onClose={() => setCounterOpen(false)} labelledBy="counter-title">
+          <form className="counter-form" onSubmit={(event) => {
+            event.preventDefault();
+            const amount = Number(counterPrice);
+            const amountInPen = counterToPen(amount);
+            if (!counterPrice.trim() || !Number.isFinite(amountInPen) || amountInPen < counterRangePen.min || amountInPen > counterRangePen.max) {
+              setCounterError(true);
+              return;
+            }
+            counterRequest(req.id, amountInPen);
+            setCounterOpen(false);
+          }}>
+            <h2 id="counter-title">{c.counterTitle}</h2>
+            <p>{fill(c.counterHint, { artisan: req.artisanFirstName, min: money(counterRange(req).min), max: money(counterRange(req).max) })}</p>
+            <label htmlFor="counter-price">{fill(c.counterLabel, { currency })}</label>
+            <input id="counter-price" type="number" step="any" aria-invalid={counterError} aria-describedby={counterError ? "counter-error" : undefined} value={counterPrice} onChange={(event) => { setCounterPrice(event.target.value); setCounterError(false); }} />
+            {counterError && <p id="counter-error" className="counter-error" role="alert">{fill(c.counterInvalid, { min: money(counterRange(req).min), max: money(counterRange(req).max) })}</p>}
+            <div className="cta">
+              <button className="btn" type="submit">{c.counterSend}</button>
+              <button className="btn o" type="button" onClick={() => setCounterOpen(false)}>{c.counterCancel}</button>
+            </div>
+          </form>
         </Modal>
       )}
     </section>

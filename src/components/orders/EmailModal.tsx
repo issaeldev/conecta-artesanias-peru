@@ -22,6 +22,7 @@ export function useEmailText() {
   };
   return (order: Order, email: SimEmail) => {
     const p = email.parcel;
+    const currency = locale === "en" || order.currency === "USD" ? "USD" : "PEN";
     const vars = {
       id: order.id,
       name: order.customer.name.split(" ")[0],
@@ -33,7 +34,7 @@ export function useEmailText() {
       intlCode: p?.intlTrackingCode ?? "",
       date: p ? formatDay(p.dispatchBy, locale) : "",
       delivery: p ? formatDay(p.deliveryBy, locale) : "",
-      amount: p ? formatAmount(parcelTotal(p), order.currency, siteConfig.penPerUsd) : "",
+      amount: p ? formatAmount(parcelTotal(p), currency, siteConfig.penPerUsd) : "",
       artisanAmount: p ? formatPen(sumBreakdowns(p.lines.map((l) => l.breakdown)).artisan) : "",
       ...delayVars(p),
     };
@@ -55,6 +56,7 @@ export function EmailModal({ order, email, onClose }: Props) {
   const e = t.order.emails;
   if (!email) return null;
   const { subject, body, vars } = text(order, email);
+  const currency = locale === "en" || order.currency === "USD" ? "USD" : "PEN";
 
   return (
     <Modal open onClose={onClose} labelledBy="email-subject">
@@ -90,7 +92,7 @@ export function EmailModal({ order, email, onClose }: Props) {
                           × {l.quantity} · {fill(t.checkout.fromWorkshop, { artisan: p.artisanFirstName, region: p.regionName })}
                         </small>
                       </span>
-                      <b>{formatAmount(l.breakdown.total, order.currency, siteConfig.penPerUsd)}</b>
+                      <b>{formatAmount(l.breakdown.total, currency, siteConfig.penPerUsd)}</b>
                     </div>
                   )),
                 )}
@@ -99,7 +101,7 @@ export function EmailModal({ order, email, onClose }: Props) {
                 totals={order.totals}
                 workshops={order.parcels.length}
                 international={order.international}
-                currency={order.currency}
+                currency={currency}
               />
             </>
           )}

@@ -14,6 +14,8 @@ interface ModalProps {
 export function Modal({ open, onClose, children, labelledBy }: ModalProps) {
   const { t } = useI18n();
   const closeRef = useRef<HTMLButtonElement>(null);
+  const onCloseRef = useRef(onClose);
+  onCloseRef.current = onClose;
 
   useEffect(() => {
     if (!open) return;
@@ -23,7 +25,7 @@ export function Modal({ open, onClose, children, labelledBy }: ModalProps) {
     closeRef.current?.focus();
 
     const onKey = (e: KeyboardEvent) => {
-      if (e.key === "Escape") onClose();
+      if (e.key === "Escape") onCloseRef.current();
     };
     document.addEventListener("keydown", onKey);
     return () => {
@@ -31,7 +33,7 @@ export function Modal({ open, onClose, children, labelledBy }: ModalProps) {
       document.body.style.overflow = prevOverflow;
       previouslyFocused?.focus?.();
     };
-  }, [open, onClose]);
+  }, [open]);
 
   if (!open) return null;
 

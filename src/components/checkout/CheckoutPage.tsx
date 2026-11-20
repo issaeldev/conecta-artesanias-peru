@@ -100,7 +100,7 @@ export function CheckoutPage({ requestId }: { requestId?: string }) {
 
   const intl = isInternational(values.country);
   // Compradores del extranjero ven y pagan en dólares; Yape solo funciona en Perú.
-  const currency = intl ? "USD" : "PEN";
+  const currency = locale === "en" || intl ? "USD" : "PEN";
   const money = (amountPen: number) => formatAmount(amountPen, currency, siteConfig.penPerUsd);
   const payMethod: PaymentMethod = intl ? "card" : method;
 
@@ -115,7 +115,7 @@ export function CheckoutPage({ requestId }: { requestId?: string }) {
               name: { es: `${customProduct.name.es} (a medida)`, en: `${customProduct.name.en} (custom)` },
             },
             quantity: request.quantity,
-            custom: { requestId: request.id, details: requestSummary(request), days: customQuote.days },
+            custom: { requestId: request.id, details: requestSummary(request, locale), days: customQuote.days },
           },
         ]
       : []
@@ -202,6 +202,7 @@ export function CheckoutPage({ requestId }: { requestId?: string }) {
         payment: { method: payMethod, detail },
         entries,
         workshops,
+        currency,
       });
       if (requestId) acceptRequest(requestId, order.id);
       else cart.clear();

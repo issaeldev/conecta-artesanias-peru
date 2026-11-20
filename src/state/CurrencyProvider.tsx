@@ -1,7 +1,8 @@
-import { createContext, useCallback, useContext, useMemo, useState, type ReactNode } from "react";
+import { createContext, useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from "react";
 import { siteConfig } from "@/config/site";
 import { formatMoney } from "@/lib/money";
 import type { Currency } from "@/types/domain";
+import { useI18n } from "@/i18n/I18nProvider";
 
 interface CurrencyValue {
   currency: Currency;
@@ -13,7 +14,10 @@ interface CurrencyValue {
 const CurrencyContext = createContext<CurrencyValue | null>(null);
 
 export function CurrencyProvider({ children }: { children: ReactNode }) {
-  const [currency, setCurrency] = useState<Currency>("PEN");
+  const { locale } = useI18n();
+  const localeCurrency: Currency = locale === "en" ? "USD" : "PEN";
+  const [currency, setCurrency] = useState<Currency>(localeCurrency);
+  useEffect(() => setCurrency(localeCurrency), [localeCurrency]);
   const toggleCurrency = useCallback(() => setCurrency((c) => (c === "PEN" ? "USD" : "PEN")), []);
 
   const value = useMemo<CurrencyValue>(

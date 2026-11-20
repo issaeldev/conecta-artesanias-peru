@@ -2,6 +2,7 @@ import { useState, type FormEvent } from "react";
 import { countries } from "@/data/countries";
 import { peruDepartments } from "@/data/peru";
 import { useI18n } from "@/i18n/I18nProvider";
+import type { Locale } from "@/types/domain";
 import { isInternational } from "@/lib/orders";
 import { fill } from "@/lib/text";
 import { navigate, paths } from "@/hooks/useRoute";
@@ -16,14 +17,25 @@ type Values = Record<Field, string>;
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const empty: Values = { size: "", colors: "", notes: "", name: "", email: "", country: "PE", department: "" };
-const sample: Values = {
-  size: "Más grande, unos 35 cm",
-  colors: "Tonos azules y blancos",
-  notes: "Con las iniciales A y T en la base",
-  name: "Ana Torres Salazar",
-  email: "ana.torres@ejemplo.com",
-  country: "PE",
-  department: "Lima",
+const sample: Record<Locale, Values> = {
+  es: {
+    size: "M\u00e1s grande, unos 35 cm",
+    colors: "Tonos azules y blancos",
+    notes: "Con las iniciales A y T en la base",
+    name: "Ana Torres Salazar",
+    email: "ana.torres@ejemplo.com",
+    country: "PE",
+    department: "Lima",
+  },
+  en: {
+    size: "Larger, about 35 cm",
+    colors: "Blue and white tones",
+    notes: "With the initials A and T on the base",
+    name: "Ana Torres Salazar",
+    email: "ana.torres@example.com",
+    country: "PE",
+    department: "Lima",
+  },
 };
 
 /** Formulario "Pide tu pieza a medida": la solicitud que se le consulta al artesano por WhatsApp. */
@@ -113,7 +125,7 @@ export function CustomRequestPage({ productId }: { productId: string }) {
         </a>
         <div className="co-head">
           <h1>{c.formTitle}</h1>
-          <button type="button" className="chip" onClick={() => setValues(sample)}>
+          <button type="button" className="chip" onClick={() => setValues(sample[locale])}>
             {c.sample}
           </button>
         </div>

@@ -1,6 +1,7 @@
 import { siteConfig } from "@/config/site";
 import type { Product, Workshop } from "@/types/domain";
 import type { CounterDecision, CustomRequest, RequestReply, RequestStatus } from "@/types/request";
+import type { Locale } from "@/types/domain";
 import { grossUp, splitPrice } from "./pricing";
 
 /**
@@ -165,9 +166,26 @@ export function declineRequest(req: CustomRequest, now = new Date()): CustomRequ
 }
 
 /** Resumen de lo pedido en una línea, para el pedido y los mensajes. */
-export function requestSummary(req: CustomRequest): string {
+export function requestDetailText(value: string, locale: Locale): string {
+  if (locale !== "en") return value;
+  const key = value.trim().normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
+  const known: Record<string, string> = {
+    "mas grande, unos 35 cm": "Larger, about 35 cm",
+    "tonos azules y blancos": "Blue and white tones",
+    "con las iniciales a y t en la base": "With the initials A and T on the base",
+  };
+  return known[key] ?? value;
+}
+
+/** Short summary used for order details and messages. */
+export function requestSummary(req: CustomRequest, locale: Locale = "es"): string {
   const { size, colors, notes } = req.details;
-  return [size && `Tamaño: ${size}`, colors && `Colores: ${colors}`, notes && `Detalles: ${notes}`]
-    .filter(Boolean)
-    .join(" · ");
+  const sizeLabel = locale === "en" ? "Size" : "Tama\u00f1o";
+  const colorsLabel = locale === "en" ? "Colors" : "Colores";
+  const notesLabel = locale === "en" ? "Details" : "Detalles";
+  return [
+    size && sizeLabel + ": " + requestDetailText(size, locale),
+    colors && colorsLabel + ": " + requestDetailText(colors, locale),
+    notes && notesLabel + ": " + requestDetailText(notes, locale),
+  ].filter(Boolean).join(" \u00b7 ");
 }

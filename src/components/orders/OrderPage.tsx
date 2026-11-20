@@ -39,6 +39,7 @@ export function OrderPage({ id }: { id: string }) {
     );
   }
 
+  const displayCurrency = locale === "en" || order.currency === "USD" ? "USD" : "PEN";
   const emails = orderEmails(order);
   const confirmation = emails.find((e) => e.kind === "confirmation") ?? null;
   const c = order.customer;
@@ -134,7 +135,7 @@ export function OrderPage({ id }: { id: string }) {
                   totals={order.totals}
                   workshops={order.parcels.length}
                   international={order.international}
-                  currency={order.currency}
+                  currency={displayCurrency}
                 />
               </div>
               <div className="op-card">

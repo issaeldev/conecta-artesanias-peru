@@ -105,3 +105,14 @@
   color: #0b5f64;
   font-weight: 600;
 }
+
+.quote .cta > .btn { flex: 1 1 180px; text-align: center; }
+.counter-form h2 { margin: 0 32px 10px 0; font: 700 23px var(--font-display); }
+.counter-form p { font: 14px/1.5 var(--font-ui); }
+.counter-form label { display: block; margin: 14px 0 5px; font: 600 13px var(--font-ui); }
+.counter-form input { width: 100%; padding: 11px 14px; border: 1px solid var(--line); border-radius: 10px; font: 15px var(--font-ui); }
+.counter-form .cta > .btn { flex: 1 1 160px; text-align: center; }
+.counter-error { color: #9c2633; }
+.counter-yours, .counter-result { padding: 10px 12px; border-radius: 10px; background: #e7f3f0; font: 600 14px/1.5 var(--font-ui); }
+
+.counter-offer-btn { display: block; width: 100%; margin-top: 12px; }

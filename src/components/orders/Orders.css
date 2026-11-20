@@ -899,8 +899,10 @@
   padding-left: 58px;
 }
 .delay-actions .btn {
+  flex: 1 1 200px;
   padding: 10px 18px;
   font-size: 14px;
+  text-align: center;
 }
 .delay-actions .now-note {
   flex-basis: 100%;
