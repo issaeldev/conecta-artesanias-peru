@@ -12,6 +12,7 @@ import type {
   ParcelEventType,
   ParcelStatus,
   PaymentMethod,
+  PhotoStage,
 } from "@/types/order";
 import type { Currency } from "@/types/domain";
 import { splitPrice, sumBreakdowns } from "./pricing";
@@ -193,6 +194,7 @@ const statusByEvent: Record<ParcelEventType, ParcelStatus> = {
   extended: "preparing",
   packed: "preparing",
   no_stock: "cancelled",
+  photo: "preparing", // no se usa: es informativo (ver statusEvent)
   ready: "ready",
   picked_up: "in_transit",
   at_hub: "at_hub",
@@ -201,6 +203,8 @@ const statusByEvent: Record<ParcelEventType, ParcelStatus> = {
   delivered: "delivered",
   paid_out: "delivered",
   payout_confirmed: "delivered",
+  thanks: "delivered", // informativos (ver INFO_EVENTS)
+  thanks_reply: "delivered",
   delay_detected: "delayed",
   delay_reason: "delayed",
   delay_accepted: "preparing",
@@ -210,7 +214,7 @@ const statusByEvent: Record<ParcelEventType, ParcelStatus> = {
 };
 
 /** Eventos que solo informan y no cambian el estado del envío. */
-const INFO_EVENTS = new Set<ParcelEventType>(["courier_delay"]);
+const INFO_EVENTS = new Set<ParcelEventType>(["courier_delay", "photo", "thanks", "thanks_reply"]);
 
 export function lastEvent(parcel: Parcel): ParcelEvent {
   return parcel.events[parcel.events.length - 1];
@@ -240,6 +244,27 @@ export function parcelArtisanAmount(parcel: Parcel): number {
   return sumBreakdowns(parcel.lines.map((l) => l.breakdown)).artisan;
 }
 
+/* ---------- Fotos del taller ---------- */
+
+/**
+ * Qué foto toca mandar ahora. A medida: un avance mientras la elabora y la pieza terminada.
+ * Catálogo: la pieza real antes de empacarla (la que recibirá el comprador, no la del catálogo).
+ */
+export function nextPhotoStage(parcel: Parcel): PhotoStage | null {
+  const stages: PhotoStage[] = parcel.custom ? ["progress", "finished"] : ["finished"];
+  const sent = parcel.events.filter((e) => e.type === "photo").length;
+  return stages[sent] ?? null;
+}
+
+/** Imagen simulada de cada foto: el artesano en su taller o la pieza terminada. */
+export function photoSrc(parcel: Parcel, stage: PhotoStage): string {
+  return stage === "progress" ? `/images/artisans/${parcel.workshopId}.jpg` : parcel.lines[0].image;
+}
+
+export function parcelPhotos(parcel: Parcel): Extract<ParcelEvent, { type: "photo" }>[] {
+  return parcel.events.filter((e): e is Extract<ParcelEvent, { type: "photo" }> => e.type === "photo");
+}
+
 /* ---------- Respuestas del artesano (WhatsApp) ---------- */
 
 /** Qué puede responder el artesano en este momento. */
@@ -252,9 +277,14 @@ export function availableReplies(parcel: Parcel): ArtisanReply[] {
     return parcel.custom ? ["confirm", "more_days"] : ["confirm", "no_stock", "more_days"];
   }
   if (status === "delayed") return last === "delay_detected" ? ["delay_sick", "delay_material", "delay_cannot"] : [];
-  if (status === "delivered") return last === "paid_out" ? ["payout_received"] : [];
+  if (status === "delivered") {
+    const replies: ArtisanReply[] = last === "paid_out" ? ["payout_received"] : [];
+    if (hasEvent(parcel, "thanks") && !hasEvent(parcel, "thanks_reply")) replies.push("thanks_reply");
+    return replies;
+  }
   if (status === "preparing") {
-    return last === "packed" ? ["handover_agency", "handover_pickup"] : ["ready"];
+    if (last === "packed") return ["handover_agency", "handover_pickup"];
+    return nextPhotoStage(parcel) ? ["send_photo", "ready"] : ["ready"];
   }
   return [];
 }
@@ -302,6 +332,11 @@ export function applyArtisanReply(order: Order, parcelId: string, reply: Artisan
           events: [...p.events, { type: "extended", at, days, dispatchBy: dispatchBy.toISOString() }],
         };
       }
+      case "send_photo": {
+        const stage = nextPhotoStage(p);
+        if (!stage) return p;
+        return { ...p, events: [...p.events, { type: "photo", at, stage, src: photoSrc(p, stage) }] };
+      }
       case "ready":
         // Con recojo disponible se le pregunta cómo prefiere entregarlo; si no, va a la agencia.
         if (p.pickupAvailable) return { ...p, events: [...p.events, { type: "packed", at }] };
@@ -310,6 +345,8 @@ export function applyArtisanReply(order: Order, parcelId: string, reply: Artisan
         return withReady(p, "agency", now);
       case "handover_pickup":
         return withReady(p, "pickup", now);
+      case "thanks_reply":
+        return { ...p, events: [...p.events, { type: "thanks_reply", at }] };
       case "payout_received":
         return { ...p, events: [...p.events, { type: "payout_confirmed", at }] };
       case "delay_sick":
@@ -346,6 +383,43 @@ export function applyBuyerDelayDecision(order: Order, parcelId: string, accept: 
       events: [...p.events, { type: "delay_accepted", at }],
     };
   });
+}
+
+/* ---------- Mensaje del comprador al artesano ---------- */
+
+export interface ThanksInput {
+  message: string;
+  photo?: string;
+  publicOk: boolean;
+  translation?: { text: string; from: string } | null;
+}
+
+/** Se puede dejar un mensaje una vez, cuando la pieza ya fue entregada. */
+export function canThank(parcel: Parcel): boolean {
+  return hasEvent(parcel, "delivered") && parcelStatus(parcel) === "delivered" && !hasEvent(parcel, "thanks");
+}
+
+export function applyBuyerThanks(order: Order, parcelId: string, input: ThanksInput, now = new Date()): Order {
+  const message = input.message.trim().slice(0, 450);
+  if (!message) return order;
+  return updateParcel(order, parcelId, (p) =>
+    canThank(p)
+      ? {
+          ...p,
+          events: [
+            ...p.events,
+            {
+              type: "thanks",
+              at: now.toISOString(),
+              message,
+              publicOk: input.publicOk,
+              ...(input.photo ? { photo: input.photo } : {}),
+              ...(input.translation ? { translation: input.translation } : {}),
+            },
+          ],
+        }
+      : p,
+  );
 }
 
 /* ---------- Incidencias (simuladas desde el panel de demostración) ---------- */

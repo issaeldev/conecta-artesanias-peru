@@ -1,6 +1,6 @@
 import { useMemo, useState } from "react";
-import { siteConfig } from "@/config/site";
 import { useI18n } from "@/i18n/I18nProvider";
+import { fill } from "@/lib/text";
 import { filterProducts, type CategoryFilter } from "@/lib/catalogFilter";
 import { useCatalog } from "@/state/CatalogProvider";
 import { useCurrency } from "@/state/CurrencyProvider";
@@ -15,13 +15,13 @@ const CATEGORIES: CategoryFilter[] = ["all", "textil", "ceramica", "decoracion"]
 export function Catalog() {
   const { t, locale } = useI18n();
   const { products, status } = useCatalog();
-  const { currency, toggleCurrency } = useCurrency();
+  const { currency, toggleCurrency, rate: penPerUsd, rateDate } = useCurrency();
   const { openProduct } = useProductModal();
 
   const [category, setCategory] = useState<CategoryFilter>("all");
   const [query, setQuery] = useState("");
 
-  const rate = siteConfig.penPerUsd.toFixed(2);
+  const rate = penPerUsd.toFixed(rateDate ? 3 : 2);
   const rateLabel = locale === "es" ? rate.replace(".", ",") : rate;
 
   const visible = useMemo(
@@ -43,7 +43,7 @@ export function Catalog() {
           />
           <Chip onClick={toggleCurrency}>{t.catalog.currencyToggle}</Chip>
           <small>
-            {currency === "USD" ? t.catalog.fxNote.replace("{rate}", rateLabel) : ""}
+            {currency === "USD" ? fill(rateDate ? t.catalog.fxLive : t.catalog.fxNote, { rate: rateLabel, date: rateDate ? new Date(`${rateDate}T12:00:00`).toLocaleDateString(locale === "en" ? "en-US" : "es-PE", { day: "numeric", month: "short" }) : "" }) : ""}
           </small>
         </div>
         <div className="chips">

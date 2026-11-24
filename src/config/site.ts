@@ -3,7 +3,7 @@ export const siteConfig = {
   name: "Conecta Artesanías Perú",
   /** Número de WhatsApp Business (formato internacional, sin "+"). Vacío = wa.me sin destinatario. */
   whatsappNumber: (import.meta.env.VITE_WHATSAPP_NUMBER ?? "").replace(/\D/g, ""),
-  /** Tipo de cambio supuesto (no actualizado en línea): soles por dólar. */
+  /** Tipo de cambio de respaldo (soles por dólar) si no se obtiene el del BCRP del día. */
   penPerUsd: Number(import.meta.env.VITE_PEN_PER_USD) || 3.5,
   /** Cantidad máxima de una misma pieza por pedido. */
   maxQuantityPerItem: 20,

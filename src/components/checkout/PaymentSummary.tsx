@@ -1,3 +1,4 @@
+import { useCurrency } from "@/state/CurrencyProvider";
 import { siteConfig } from "@/config/site";
 import { useI18n } from "@/i18n/I18nProvider";
 import { formatAmount } from "@/lib/pricing";
@@ -17,9 +18,10 @@ interface Props {
 
 export function PaymentSummary({ totals, workshops, international = false, currency = "PEN" }: Props) {
   const { t } = useI18n();
+  const { rate: penPerUsd } = useCurrency();
   const c = t.checkout;
   const { commissionRate, igvRate, igvBase } = siteConfig.pricing;
-  const formatPen = (n: number) => formatAmount(n, currency, siteConfig.penPerUsd);
+  const formatPen = (n: number) => formatAmount(n, currency, penPerUsd);
   const share = totals.products > 0 ? totals.artisan / totals.products : 0;
 
   return (

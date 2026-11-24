@@ -10,7 +10,8 @@ export type Route =
   | { name: "checkout"; requestId?: string }
   | { name: "order"; id: string }
   | { name: "customForm"; productId: string }
-  | { name: "request"; id: string };
+  | { name: "request"; id: string }
+  | { name: "passport"; code: string };
 
 export function parseRoute(hash: string): Route {
   const customCheckout = /^#\/checkout\/solicitud\/([\w-]+)/.exec(hash);
@@ -22,6 +23,8 @@ export function parseRoute(hash: string): Route {
   if (form) return { name: "customForm", productId: form[1] };
   const request = /^#\/solicitud\/([\w-]+)/.exec(hash);
   if (request) return { name: "request", id: request[1] };
+  const passport = /^#\/pasaporte\/([\w-]+)/.exec(hash);
+  if (passport) return { name: "passport", code: passport[1] };
   return { name: "home" };
 }
 
@@ -32,6 +35,7 @@ export const paths = {
   order: (id: string) => `#/pedido/${id}`,
   customForm: (productId: string) => `#/a-medida/${productId}`,
   request: (id: string) => `#/solicitud/${id}`,
+  passport: (code: string) => `#/pasaporte/${code}`,
 };
 
 export function navigate(path: string) {

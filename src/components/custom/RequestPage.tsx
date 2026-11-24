@@ -1,5 +1,5 @@
+import { useCurrency } from "@/state/CurrencyProvider";
 import { useState } from "react";
-import { siteConfig } from "@/config/site";
 import { useI18n } from "@/i18n/I18nProvider";
 import { buildRequestChat, requestReplyLabel } from "@/lib/artisanChat";
 import { addBusinessDays, isInternational, shippingQuote } from "@/lib/orders";
@@ -41,6 +41,7 @@ function requestMails(req: CustomRequest): Mail[] {
 /** Seguimiento de una solicitud a medida: lado del comprador y el WhatsApp del artesano. */
 export function RequestPage({ id }: { id: string }) {
   const { t, locale } = useI18n();
+  const { rate: penPerUsd } = useCurrency();
   const c = t.custom;
   const { getRequest, requestReply, declineQuote, counterRequest } = useOrders();
   const [view, setView] = useState<"buyer" | "artisan">("buyer");
@@ -70,10 +71,10 @@ export function RequestPage({ id }: { id: string }) {
   const decision = counterDecision(req);
   const accepted = req.events.find((e) => e.type === "accepted");
   const currency = locale === "en" || isInternational(req.customer.country) ? "USD" : "PEN";
-  const money = (n: number) => formatAmount(n, currency, siteConfig.penPerUsd);
+  const money = (n: number) => formatAmount(n, currency, penPerUsd);
   const counterRangePen = counterRange(req);
-  const counterToDisplay = (pen: number) => currency === "USD" ? pen / siteConfig.penPerUsd : pen;
-  const counterToPen = (amount: number) => currency === "USD" ? amount * siteConfig.penPerUsd : amount;
+  const counterToDisplay = (pen: number) => currency === "USD" ? pen / penPerUsd : pen;
+  const counterToPen = (amount: number) => currency === "USD" ? amount * penPerUsd : amount;
   const first = req.customer.name.split(" ")[0];
   const vars = {
     artisan: req.artisanFirstName,

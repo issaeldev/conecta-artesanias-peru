@@ -1,6 +1,6 @@
+import { useCurrency } from "@/state/CurrencyProvider";
 import { useI18n } from "@/i18n/I18nProvider";
 import { parcelTotal } from "@/lib/orders";
-import { siteConfig } from "@/config/site";
 import { formatAmount, formatPen, sumBreakdowns } from "@/lib/pricing";
 import { fill, formatDateTime, formatDay } from "@/lib/text";
 import type { Order } from "@/types/order";
@@ -11,6 +11,7 @@ import type { SimEmail } from "./emails";
 /** Asunto del correo, también usado en la bandeja. */
 export function useEmailText() {
   const { t, locale } = useI18n();
+  const { rate: penPerUsd } = useCurrency();
   const delayVars = (p?: Order["parcels"][number]): Record<string, string> => {
     const reason = p?.events.find((e) => e.type === "delay_reason");
     if (!reason || reason.type !== "delay_reason") return {};
@@ -34,7 +35,7 @@ export function useEmailText() {
       intlCode: p?.intlTrackingCode ?? "",
       date: p ? formatDay(p.dispatchBy, locale) : "",
       delivery: p ? formatDay(p.deliveryBy, locale) : "",
-      amount: p ? formatAmount(parcelTotal(p), currency, siteConfig.penPerUsd) : "",
+      amount: p ? formatAmount(parcelTotal(p), currency, penPerUsd) : "",
       artisanAmount: p ? formatPen(sumBreakdowns(p.lines.map((l) => l.breakdown)).artisan) : "",
       ...delayVars(p),
     };
@@ -52,6 +53,7 @@ interface Props {
 /** Vista previa de un correo simulado, con el aspecto de un correo real. */
 export function EmailModal({ order, email, onClose }: Props) {
   const { t, locale } = useI18n();
+  const { rate: penPerUsd } = useCurrency();
   const text = useEmailText();
   const e = t.order.emails;
   if (!email) return null;
@@ -92,7 +94,7 @@ export function EmailModal({ order, email, onClose }: Props) {
                           × {l.quantity} · {fill(t.checkout.fromWorkshop, { artisan: p.artisanFirstName, region: p.regionName })}
                         </small>
                       </span>
-                      <b>{formatAmount(l.breakdown.total, currency, siteConfig.penPerUsd)}</b>
+                      <b>{formatAmount(l.breakdown.total, currency, penPerUsd)}</b>
                     </div>
                   )),
                 )}

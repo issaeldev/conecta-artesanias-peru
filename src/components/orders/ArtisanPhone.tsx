@@ -70,7 +70,8 @@ export function ArtisanPhone({ messages, replies, onReply }: Props) {
         <div className="wa-body" ref={bodyRef} aria-live="polite">
           <p className="wa-day">Hoy</p>
           {messages.slice(0, shown).map((m) => (
-            <div key={m.id} className={`wa-msg ${m.from === "artisan" ? "out" : "in"}`}>
+            <div key={m.id} className={`wa-msg ${m.from === "artisan" ? "out" : "in"}${m.image ? " has-photo" : ""}`}>
+              {m.image && <img className="wa-photo" src={m.image} alt="" />}
               <RichText text={m.text} />
               <span className="wa-time">
                 {time(m.at)}

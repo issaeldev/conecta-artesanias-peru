@@ -24,12 +24,15 @@ import { OrderPage } from "@/components/orders/OrderPage";
 import { Assistant } from "@/components/assistant/Assistant";
 import { CustomRequestPage } from "@/components/custom/CustomRequestPage";
 import { RequestPage } from "@/components/custom/RequestPage";
+import { PassportPage } from "@/components/passport/PassportPage";
+import { ImpactSection } from "@/components/sections/ImpactSection";
 
 function Landing() {
   return (
     <>
       <Hero />
       <Marquee />
+      <ImpactSection />
       <TextileDivider />
       <RegionMap />
       <ArtisanProfiles />
@@ -81,6 +84,7 @@ export default function App() {
         {route.name === "customForm" && <CustomRequestPage key={route.productId} productId={route.productId} />}
         {route.name === "request" && <RequestPage key={route.id} id={route.id} />}
         {route.name === "order" && <OrderPage key={route.id} id={route.id} />}
+        {route.name === "passport" && <PassportPage key={route.code} code={route.code} />}
         {isHome && <Landing />}
       </main>
 

@@ -1,9 +1,10 @@
 import type { ArtisanReply, Order, Parcel } from "@/types/order";
 import type { CustomRequest, RequestReply } from "@/types/request";
 import { findCountry } from "@/data/countries";
-import { isLimaDestination, parcelArtisanAmount } from "./orders";
+import { isLimaDestination, nextPhotoStage, parcelArtisanAmount } from "./orders";
 import { formatPen } from "./pricing";
 import { counterOptions, quoteOptions } from "./requests";
+import { languageName } from "./translate";
 
 /**
  * Conversación de WhatsApp entre Conecta Artesanías Perú y el artesano.
@@ -15,6 +16,8 @@ export interface ChatMessage {
   from: "conecta" | "artisan";
   text: string;
   at: string;
+  /** Foto adjunta (las que manda el artesano de su avance). */
+  image?: string;
 }
 
 /** Texto de cada botón de respuesta rápida (es también lo que aparece como mensaje del artesano). */
@@ -24,10 +27,12 @@ export const replyLabels: Record<ArtisanReply, string> = {
   more_days: "3. Necesito más días",
   days_2: "2 días más",
   days_5: "5 días más",
+  send_photo: "📷 Enviar foto",
   ready: "LISTO",
   handover_agency: "1. Lo llevo a la agencia",
   handover_pickup: "2. Que lo recojan",
   payout_received: "1. Sí, lo recibí",
+  thanks_reply: "🙏 ¡Gracias a ti!",
   delay_sick: "1. Me enfermé, necesito 3 días más",
   delay_material: "2. Me faltó material, necesito 5 días más",
   delay_cannot: "3. Ya no puedo hacerlo",
@@ -37,6 +42,9 @@ export const replyLabels: Record<ArtisanReply, string> = {
 export function replyLabel(reply: ArtisanReply, parcel: Parcel): string {
   if (parcel.custom && reply === "confirm") return "1. Confirmo, la empiezo";
   if (parcel.custom && reply === "more_days") return "2. Necesito más días";
+  if (reply === "send_photo") {
+    return nextPhotoStage(parcel) === "progress" ? "📷 Enviar foto del avance" : "📷 Enviar foto de la pieza";
+  }
   return replyLabels[reply];
 }
 
@@ -63,8 +71,8 @@ export function buildArtisanChat(order: Order, parcel: Parcel): ChatMessage[] {
   const plural = unitCount(parcel) > 1;
   const amount = formatPen(parcelArtisanAmount(parcel));
   const messages: ChatMessage[] = [];
-  const push = (from: ChatMessage["from"], text: string, at: string) =>
-    messages.push({ id: `${parcel.id}-${messages.length}`, from, text, at });
+  const push = (from: ChatMessage["from"], text: string, at: string, image?: string) =>
+    messages.push({ id: `${parcel.id}-${messages.length}`, from, text, at, ...(image ? { image } : {}) });
 
   for (const e of parcel.events) {
     switch (e.type) {
@@ -106,6 +114,9 @@ export function buildArtisanChat(order: Order, parcel: Parcel): ChatMessage[] {
             `¡Gracias, ${name}! ✅ Pedido confirmado.`,
             `Ya le avisamos a ${buyer} que estás preparando su pieza.`,
             "",
+            parcel.custom
+              ? "📷 Mientras la haces, mándanos una foto del avance: a los compradores les encanta verlo."
+              : "📷 Antes de empacarla, mándanos una foto de la pieza: así el comprador ve la que recibirá.",
             "Cuando esté empacada, responde *LISTO* y coordinamos el recojo.",
             "",
             "📦 Consejo: envuélvela en papel y bolsa para protegerla de golpes y humedad.",
@@ -299,6 +310,40 @@ export function buildArtisanChat(order: Order, parcel: Parcel): ChatMessage[] {
           `📦 Te avisamos: ${parcel.international ? parcel.intlCourier : parcel.courier} reportó un retraso con tu paquete. No tienes que hacer nada: nosotros lo gestionamos y tu pago no se ve afectado.`,
           e.at,
         );
+        break;
+      case "photo":
+        push("artisan", e.stage === "progress" ? "Así va avanzando 🧶" : "Ya está terminada ✨", e.at, e.src);
+        push(
+          "conecta",
+          [
+            `¡Qué bonita, ${name}! 😍 Ya se la mostramos a ${buyer} en su seguimiento.`,
+            ...(e.stage === "progress" && nextPhotoStage(parcel)
+              ? ["", "Cuando la termines, mándanos otra foto antes de empacarla."]
+              : ["", "Cuando esté empacada, responde *LISTO*."]),
+          ].join("\n"),
+          e.at,
+        );
+        break;
+      case "thanks":
+        push(
+          "conecta",
+          [
+            `💌 ${name}, ${buyer} recibió su pieza y te dejó un mensaje:`,
+            "",
+            // El artesano lee en español: si el comprador escribió en otro idioma, va traducido y con el original.
+            `“${e.translation?.text ?? e.message}”`,
+            ...(e.translation
+              ? ["", `🌎 Traducido del ${languageName(e.translation.from)}. Original: “${e.message}”`]
+              : []),
+            ...(e.photo ? ["", "📷 Y te mandó una foto de tu pieza en su casa."] : []),
+          ].join("\n"),
+          e.at,
+          e.photo,
+        );
+        break;
+      case "thanks_reply":
+        push("artisan", replyLabels.thanks_reply, e.at);
+        push("conecta", `Se lo hicimos llegar a ${buyer} 💛 Mensajes como este ayudan a que más personas conozcan tu trabajo.`, e.at);
         break;
       case "payout_confirmed":
         push("artisan", replyLabels.payout_received, e.at);

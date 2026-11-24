@@ -16,17 +16,26 @@ import {
   advanceCourier,
   applyArtisanReply,
   applyBuyerDelayDecision,
+  applyBuyerThanks,
+  canThank,
   availableReplies,
   awaitingBuyerDecision,
   createOrder,
   handoverOf,
   nextCourierStep,
   nextIncident,
+  nextPhotoStage,
+  parcelPhotos,
   simulateIncident,
   parcelStatus,
   payoutDate,
 } from "./orders";
 import { formatAmount, splitPrice } from "./pricing";
+import { parseBcrpDay, parseBcrpText } from "./bcrp";
+import { parseMyMemory } from "./translate";
+import { buildPassport, decodePassport, encodePassport } from "./passport";
+import { computeImpact, liveTestimonials } from "./impact";
+import { impactBaseline } from "@/data/impact";
 import { detectTopic, findOrderId } from "./assistant";
 
 const customer = {
@@ -147,6 +156,135 @@ describe("flujo del envío", () => {
   });
 });
 
+describe("fotos del taller", () => {
+  it("el artesano manda la foto de la pieza real antes de empacar, sin cambiar el estado", () => {
+    let order = sampleOrder();
+    const pid = order.parcels[0].id;
+    order = applyArtisanReply(order, pid, "confirm", NOW);
+    expect(availableReplies(order.parcels[0])).toEqual(["send_photo", "ready"]);
+    order = applyArtisanReply(order, pid, "send_photo", NOW);
+    const parcel = order.parcels[0];
+    expect(parcelStatus(parcel)).toBe("preparing");
+    expect(parcelPhotos(parcel)).toHaveLength(1);
+    expect(parcelPhotos(parcel)[0]).toMatchObject({ stage: "finished", src: parcel.lines[0].image });
+    expect(nextPhotoStage(parcel)).toBeNull();
+    expect(availableReplies(parcel)).toEqual(["ready"]);
+    const chat = buildArtisanChat(order, parcel);
+    expect(chat.some((m) => m.image === parcel.lines[0].image)).toBe(true);
+  });
+
+  it("en una pieza a medida pide primero un avance y luego la pieza terminada", () => {
+    let order = sampleOrder();
+    order = { ...order, parcels: order.parcels.map((p) => ({ ...p, custom: true })) };
+    const pid = order.parcels[0].id;
+    order = applyArtisanReply(order, pid, "confirm", NOW);
+    expect(nextPhotoStage(order.parcels[0])).toBe("progress");
+    order = applyArtisanReply(order, pid, "send_photo", NOW);
+    expect(nextPhotoStage(order.parcels[0])).toBe("finished");
+    order = applyArtisanReply(order, pid, "send_photo", NOW);
+    expect(parcelPhotos(order.parcels[0]).map((p) => p.stage)).toEqual(["progress", "finished"]);
+  });
+});
+
+/** Pedido de catálogo hasta "pago transferido": confirma, foto, listo y courier. */
+function deliveredOrder() {
+  let order = sampleOrder();
+  const pid = order.parcels[0].id;
+  order = applyArtisanReply(order, pid, "confirm", NOW);
+  order = applyArtisanReply(order, pid, "send_photo", NOW);
+  order = applyArtisanReply(order, pid, "ready", NOW);
+  for (let i = 0; i < 4; i++) order = advanceCourier(order, pid, NOW);
+  return { order, pid };
+}
+
+describe("mensaje al artesano", () => {
+  it("solo después de la entrega, una vez, y el artesano puede responder", () => {
+    let order = sampleOrder();
+    expect(canThank(order.parcels[0])).toBe(false);
+    const d = deliveredOrder();
+    order = d.order;
+    expect(canThank(order.parcels[0])).toBe(true);
+    order = applyBuyerThanks(order, d.pid, { message: "  ¡Gracias, Rosa!  ", publicOk: true }, NOW);
+    const parcel = order.parcels[0];
+    expect(canThank(parcel)).toBe(false);
+    expect(parcelStatus(parcel)).toBe("delivered");
+    expect(availableReplies(parcel)).toContain("thanks_reply");
+    expect(buildArtisanChat(order, parcel).some((m) => m.text.includes("“¡Gracias, Rosa!”"))).toBe(true);
+    order = applyArtisanReply(order, d.pid, "thanks_reply", NOW);
+    expect(availableReplies(order.parcels[0])).not.toContain("thanks_reply");
+    expect(liveTestimonials([order])[0]).toMatchObject({ message: "¡Gracias, Rosa!", live: true });
+  });
+
+  it("si el comprador escribe en otro idioma, el artesano lo lee traducido y con el original", () => {
+    const d = deliveredOrder();
+    const order = applyBuyerThanks(
+      d.order,
+      d.pid,
+      { message: "I love it!", publicOk: true, translation: { text: "¡Me encanta!", from: "en" } },
+      NOW,
+    );
+    const msg = buildArtisanChat(order, order.parcels[0]).find((m) => m.text.includes("¡Me encanta!"))!;
+    expect(msg.text).toContain("“¡Me encanta!”");
+    expect(msg.text).toContain("Traducido del inglés");
+    expect(msg.text).toContain("“I love it!”");
+  });
+
+  it("interpreta la respuesta de MyMemory", () => {
+    const ok = { responseStatus: 200, responseData: { translatedText: "¡Me encanta!", detectedLanguage: "en" } };
+    expect(parseMyMemory(ok)).toEqual({ text: "¡Me encanta!", from: "en" });
+    expect(parseMyMemory({ responseStatus: "403", responseDetails: "PLEASE SELECT TWO DISTINCT LANGUAGES" })).toBeNull();
+    expect(() => parseMyMemory({ responseStatus: 429, responseDetails: "QUOTA" })).toThrow();
+  });
+
+  it("no publica el mensaje como testimonio sin permiso", () => {
+    const d = deliveredOrder();
+    const order = applyBuyerThanks(d.order, d.pid, { message: "Privado", publicOk: false }, NOW);
+    expect(liveTestimonials([order])).toHaveLength(0);
+  });
+});
+
+describe("pasaporte de la pieza", () => {
+  it("se emite al entregar, viaja en el enlace y oculta el n.° de operación", () => {
+    expect(buildPassport(sampleOrder(), sampleOrder().parcels[0])).toBeNull();
+    const d = deliveredOrder();
+    const passport = buildPassport(d.order, d.order.parcels[0])!;
+    expect(passport.serial).toBe(d.pid);
+    expect(passport.photos).toHaveLength(1);
+    expect(passport.payout?.operation).toMatch(/^••••\d{4}$/);
+    const code = encodePassport(passport);
+    expect(code).toMatch(/^[\w-]+$/);
+    expect(decodePassport(code)).toEqual(passport);
+    expect(decodePassport("basura")).toBeNull();
+  });
+});
+
+describe("impacto en vivo", () => {
+  it("suma al contador solo los pagos ya transferidos al artesano", () => {
+    const before = computeImpact([sampleOrder()], workshops);
+    expect(before.transferredPen).toBe(impactBaseline.transferredPen);
+    const d = deliveredOrder();
+    const after = computeImpact([d.order], workshops);
+    expect(after.liveTransferredPen).toBeCloseTo(271.88, 2);
+    expect(after.deliveredOrders).toBe(impactBaseline.deliveredOrders + 1);
+  });
+});
+
+describe("tipo de cambio BCRP", () => {
+  const body = `{"periods":[{"name":"20.Nov.26","values":["3.453"]},{"name":"23.Nov.26","values":["3.455"]},{"name":"24.Nov.26","values":["n.d."]}]}<br />
+<font size='1'><table class='xdebug-error'>`;
+
+  it("toma el último día con dato e ignora el aviso HTML que agrega la API", () => {
+    expect(parseBcrpText(body)).toEqual({ penPerUsd: 3.455, date: "2026-11-23", source: "BCRP" });
+  });
+
+  it("interpreta las fechas en español y devuelve null si no hay datos", () => {
+    expect(parseBcrpDay("5.Set.26")).toBe("2026-09-05");
+    expect(parseBcrpDay("9.Dic.26")).toBe("2026-12-09");
+    expect(parseBcrpText('{"periods":[{"name":"24.Nov.26","values":["n.d."]}]}')).toBeNull();
+    expect(parseBcrpText("<html>error</html>")).toBeNull();
+  });
+});
+
 describe("entrega del paquete al courier", () => {
   it("sin recojo en su zona, LISTO lleva directo a la agencia", () => {
     let order = sampleOrder(["manta-telar-cintura"]); // Puno: sin recojo
@@ -253,7 +391,7 @@ describe("retraso del artesano", () => {
     expect(parcelStatus(order.parcels[0])).toBe("preparing");
     expect(order.parcels[0].deliveryBy).not.toBe(before);
     expect(nextIncident(order.parcels[0])).toBeNull(); // un retraso del artesano por envío
-    expect(availableReplies(order.parcels[0])).toEqual(["ready"]);
+    expect(availableReplies(order.parcels[0])).toEqual(["send_photo", "ready"]);
   });
 
   it("si el comprador cancela, el envío queda cancelado", () => {

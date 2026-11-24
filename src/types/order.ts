@@ -43,6 +43,8 @@ export type ParcelEvent =
   | { type: "asked_days"; at: string }
   | { type: "extended"; at: string; days: number; dispatchBy?: string }
   | { type: "no_stock"; at: string }
+  /** Foto que el artesano manda por WhatsApp mientras prepara la pieza (solo informa, no cambia el estado). */
+  | { type: "photo"; at: string; stage: PhotoStage; src: string }
   /** Dijo LISTO y se le pregunta cómo entregará el paquete (solo si su zona tiene recojo). */
   | { type: "packed"; at: string }
   /** pickupOn: día del recojo en el taller o fecha límite para dejarlo en la agencia. */
@@ -57,6 +59,20 @@ export type ParcelEvent =
   | { type: "paid_out"; at: string; operation: string }
   | { type: "payout_confirmed"; at: string }
   /**
+   * Después de la entrega, el comprador le deja un mensaje (y una foto opcional) al artesano,
+   * que le llega por WhatsApp. publicOk: autoriza mostrarlo como testimonio. Solo informa.
+   */
+  | {
+      type: "thanks";
+      at: string;
+      message: string;
+      photo?: string;
+      publicOk: boolean;
+      /** Si el comprador escribió en otro idioma: la versión en español que lee el artesano. */
+      translation?: { text: string; from: string };
+    }
+  | { type: "thanks_reply"; at: string }
+  /**
    * Retraso del artesano (procedimiento de incidencias): se detecta que venció la fecha
    * límite, el artesano explica y propone fecha, y el comprador acepta o cancela.
    */
@@ -69,6 +85,9 @@ export type ParcelEvent =
   | { type: "courier_delay"; at: string; days: number };
 
 export type DelayReason = "sick" | "material";
+
+/** Avance (pieza a medida en elaboración) o pieza terminada antes de empacar. */
+export type PhotoStage = "progress" | "finished";
 
 export type ParcelEventType = ParcelEvent["type"];
 
@@ -94,10 +113,12 @@ export type ArtisanReply =
   | "more_days"
   | "days_2"
   | "days_5"
+  | "send_photo"
   | "ready"
   | "handover_agency"
   | "handover_pickup"
   | "payout_received"
+  | "thanks_reply"
   | "delay_sick"
   | "delay_material"
   | "delay_cannot";

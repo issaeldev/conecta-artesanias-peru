@@ -10,6 +10,7 @@ import { useCurrency } from "@/state/CurrencyProvider";
 import { useProductModal } from "@/state/ProductModalProvider";
 import { Modal } from "@/components/ui/Modal";
 import { QuantityStepper } from "@/components/ui/QuantityStepper";
+import { PriceSplit } from "./PriceSplit";
 import { ProductImage } from "./ProductImage";
 import "./Product.css";
 
@@ -44,6 +45,7 @@ export function ProductDetailModal() {
         {product.location} · {p.sample}
       </div>
       <div className="price">{format(product.price)}</div>
+      <PriceSplit product={product} variant="full" />
       <p className="story">{product.story[locale]}</p>
       <div className="creation-meta">
         <div>

@@ -303,6 +303,110 @@
   }
 }
 
+/* Fotos del taller en la barra de seguimiento */
+.steps-photos {
+  position: absolute;
+  top: 0;
+  left: 100%;
+  transform: translate(-50%, -6px);
+  display: flex;
+  z-index: 1;
+}
+.steps-photo {
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  border: 2px solid #fff;
+  border-radius: 50%;
+  overflow: hidden;
+  background: var(--line);
+  cursor: zoom-in;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.18);
+  transition: transform 0.15s ease;
+}
+.steps-photo + .steps-photo {
+  margin-left: -10px;
+}
+.steps-photo:hover,
+.steps-photo:focus-visible {
+  transform: scale(1.12);
+  z-index: 2;
+}
+.steps-photo img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+@media (max-width: 560px) {
+  .steps-photo {
+    width: 26px;
+    height: 26px;
+  }
+}
+
+/* Foto ampliada */
+.photo-view {
+  margin: 0;
+}
+.photo-view > img {
+  width: 100%;
+  max-height: 62vh;
+  object-fit: contain;
+  border-radius: 12px;
+  background: var(--line);
+  display: block;
+}
+.photo-view figcaption {
+  display: grid;
+  gap: 4px;
+  margin-top: 12px;
+  font: 14px/1.4 var(--font-ui);
+}
+.photo-view figcaption span {
+  color: var(--mut);
+  font-size: 13px;
+}
+.photo-view-nav {
+  display: flex;
+  gap: 8px;
+  margin-top: 12px;
+}
+.photo-view-nav button {
+  width: 56px;
+  height: 56px;
+  padding: 0;
+  border: 2px solid transparent;
+  border-radius: 8px;
+  overflow: hidden;
+  cursor: pointer;
+  opacity: 0.6;
+}
+.photo-view-nav button.on {
+  border-color: var(--acc2);
+  opacity: 1;
+}
+.photo-view-nav img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+/* Foto dentro del chat de WhatsApp */
+.wa-msg.has-photo {
+  padding-top: 4px;
+}
+.wa-photo {
+  display: block;
+  width: 100%;
+  max-width: 200px;
+  aspect-ratio: 4 / 3;
+  object-fit: cover;
+  border-radius: 6px;
+  margin-bottom: 4px;
+}
+
 /* Mensaje del momento actual */
 .now {
   display: flex;
@@ -955,4 +1059,154 @@
   display: block;
   font-size: 12.5px;
   color: var(--mut);
+}
+
+/* Después de la entrega: pasaporte de la pieza y mensaje al artesano */
+.after {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  align-items: start;
+  gap: 12px;
+  margin: 12px 0;
+}
+.passport-card {
+  display: flex;
+  gap: 14px;
+  padding: 14px;
+  border-radius: 14px;
+  background: linear-gradient(135deg, #fbf4ea, #f3e3cf);
+  border: 1px solid var(--line);
+}
+.passport-card img {
+  width: 72px;
+  height: 72px;
+  flex: none;
+  border-radius: 12px;
+  object-fit: cover;
+}
+.passport-card-title,
+.thanks-box-title {
+  display: block;
+  margin: 0 0 4px;
+  font: 700 15px/1.3 var(--font-ui);
+  color: var(--ink);
+}
+.passport-card-body,
+.thanks-box-body {
+  margin: 0 0 10px;
+  font: 13px/1.45 var(--font-ui);
+  color: var(--mut);
+}
+.passport-card .btn {
+  padding: 8px 16px;
+  font-size: 14px;
+}
+.thanks-box {
+  display: grid;
+  gap: 8px;
+  padding: 14px;
+  border-radius: 14px;
+  background: #fff;
+  border: 1px solid var(--line);
+}
+.thanks-box .thanks-box-body {
+  margin: 0;
+}
+.thanks-box textarea {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  font: 14px/1.45 var(--font-ui);
+  resize: vertical;
+  background: #fffdf9;
+}
+.thanks-photo {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+.thanks-photo img {
+  width: 56px;
+  height: 56px;
+  border-radius: 10px;
+  object-fit: cover;
+}
+.thanks-file {
+  position: relative;
+  padding: 6px 12px;
+  font-size: 13px;
+  cursor: pointer;
+}
+.thanks-file input {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  cursor: pointer;
+}
+.thanks-public {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  font: 12.5px/1.4 var(--font-ui);
+  color: var(--mut);
+}
+.thanks-public input {
+  margin-top: 2px;
+}
+.thanks-box .btn[type="submit"] {
+  justify-self: start;
+  padding: 8px 16px;
+  font-size: 14px;
+}
+.thanks-box .btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+.thanks-bubble {
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+  padding: 10px 12px;
+  border-radius: 12px 12px 12px 4px;
+  background: #f6ece0;
+}
+.thanks-bubble img {
+  width: 64px;
+  height: 64px;
+  border-radius: 8px;
+  object-fit: cover;
+}
+.thanks-bubble p,
+.thanks-reply p {
+  margin: 0;
+  font: 14px/1.45 var(--font-ui);
+}
+.thanks-reply {
+  justify-self: end;
+  max-width: 90%;
+  padding: 8px 12px;
+  border-radius: 12px 12px 4px 12px;
+  background: #dcf8c6;
+}
+.thanks-reply small {
+  display: block;
+  font: 600 11.5px var(--font-ui);
+  color: var(--acc2);
+}
+.thanks-translated {
+  margin: 0;
+  font: 12.5px/1.45 var(--font-ui);
+  color: var(--mut);
+}
+.thanks-wait {
+  margin: 0;
+  font: italic 12.5px var(--font-ui);
+  color: var(--mut);
+}
+@media (max-width: 760px) {
+  .after {
+    grid-template-columns: 1fr;
+  }
 }

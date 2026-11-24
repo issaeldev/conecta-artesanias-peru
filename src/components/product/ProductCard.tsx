@@ -1,6 +1,7 @@
 import { useI18n } from "@/i18n/I18nProvider";
 import { useCurrency } from "@/state/CurrencyProvider";
 import type { Product } from "@/types/domain";
+import { PriceSplit } from "./PriceSplit";
 import { ProductImage } from "./ProductImage";
 import "./Product.css";
 
@@ -23,6 +24,7 @@ export function ProductCard({ product, onOpen }: ProductCardProps) {
       </div>
       <p className="tag">{product.technique[locale]}</p>
       <div className="price">{format(product.price)}</div>
+      <PriceSplit product={product} variant="compact" />
       <span className="more">{t.catalog.viewDetail}</span>
     </button>
   );

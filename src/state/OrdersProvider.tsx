@@ -3,9 +3,11 @@ import {
   advanceCourier,
   applyArtisanReply,
   applyBuyerDelayDecision,
+  applyBuyerThanks,
   createOrder,
   simulateIncident,
   type PlaceOrderInput,
+  type ThanksInput,
 } from "@/lib/orders";
 import {
   applyCounter,
@@ -28,6 +30,8 @@ interface OrdersValue {
   incident: (orderId: string, parcelId: string) => void;
   /** El comprador responde a un retraso: acepta la nueva fecha o cancela con reembolso. */
   delayDecision: (orderId: string, parcelId: string, accept: boolean) => void;
+  /** El comprador le deja un mensaje (y foto) al artesano después de la entrega. */
+  sendThanks: (orderId: string, parcelId: string, input: ThanksInput) => void;
   requests: CustomRequest[];
   getRequest: (id: string) => CustomRequest | undefined;
   sendRequest: (input: NewRequestInput) => CustomRequest;
@@ -130,6 +134,7 @@ export function OrdersProvider({ children }: { children: ReactNode }) {
       incident: (orderId, parcelId) => updateOrder(orderId, (o) => simulateIncident(o, parcelId)),
       delayDecision: (orderId, parcelId, accept) =>
         updateOrder(orderId, (o) => applyBuyerDelayDecision(o, parcelId, accept)),
+      sendThanks: (orderId, parcelId, input) => updateOrder(orderId, (o) => applyBuyerThanks(o, parcelId, input)),
       requests,
       getRequest: (id) => requests.find((r) => r.id === id),
       sendRequest,

@@ -1,4 +1,4 @@
-import { siteConfig } from "@/config/site";
+import { useCurrency } from "@/state/CurrencyProvider";
 import { useI18n } from "@/i18n/I18nProvider";
 import { penToUsd } from "@/lib/money";
 import { navigate, paths } from "@/hooks/useRoute";
@@ -12,6 +12,7 @@ import "./CartModal.css";
 /** "Mi pedido": piezas elegidas y paso al checkout. */
 export function CartModal() {
   const { t, locale } = useI18n();
+  const { rate: penPerUsd } = useCurrency();
   const cart = useCart();
   const { getProduct } = useCatalog();
   const { orders } = useOrders();
@@ -77,7 +78,7 @@ export function CartModal() {
               {c.subtotal}: S/ {subtotal}
             </b>{" "}
             <small>
-              (≈ US$ {penToUsd(subtotal, siteConfig.penPerUsd)}, {c.fx})
+              (≈ US$ {penToUsd(subtotal, penPerUsd)}, {c.fx})
             </small>
           </p>
           <p className="tag">{c.note}</p>

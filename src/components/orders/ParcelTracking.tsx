@@ -1,4 +1,7 @@
-import { siteConfig } from "@/config/site";
+import { useCurrency } from "@/state/CurrencyProvider";
+import { useState } from "react";
+import { Modal } from "@/components/ui/Modal";
+import { AfterDelivery } from "./AfterDelivery";
 import { findCountry } from "@/data/countries";
 import { workshops } from "@/data/workshops";
 import type { Currency } from "@/types/domain";
@@ -7,6 +10,7 @@ import {
   awaitingBuyerDecision,
   handoverOf,
   parcelArtisanAmount,
+  parcelPhotos,
   parcelStatus,
   parcelTotal,
   statusEvent,
@@ -53,6 +57,7 @@ function eventKey(parcel: Parcel, e: ParcelEvent) {
   const agency = handoverOf(parcel) === "agency";
   if (e.type === "ready" && agency) return "ready_agency" as const;
   if (e.type === "picked_up" && agency) return "picked_up_agency" as const;
+  if (e.type === "photo") return `photo_${e.stage}` as const;
   return e.type;
 }
 
@@ -62,6 +67,7 @@ const findEvent = <T extends ParcelEvent["type"]>(parcel: Parcel, type: T) =>
 /** Seguimiento de un envío: pasos, mensaje humano del momento actual, camino del pago e historial. */
 export function ParcelTracking({ order, parcel, index, count }: Props) {
   const { t, locale } = useI18n();
+  const { rate: penPerUsd } = useCurrency();
   const { delayDecision } = useOrders();
   const o = t.order;
   const detected = findEvent(parcel, "delay_detected");
@@ -74,12 +80,14 @@ export function ParcelTracking({ order, parcel, index, count }: Props) {
   const cancelled = status === "cancelled";
   const done = cancelled ? -1 : doneIndex[status];
   const paidOut = findEvent(parcel, "paid_out");
+  const photos = parcelPhotos(parcel);
+  const [openPhoto, setOpenPhoto] = useState<number | null>(null);
   const vars = {
     artisan: parcel.artisanFirstName,
     courier: parcel.courier,
     community,
     region: parcel.regionName,
-    amount: formatAmount(parcelTotal(parcel), displayCurrency, siteConfig.penPerUsd),
+    amount: formatAmount(parcelTotal(parcel), displayCurrency, penPerUsd),
     date: formatDay(parcel.dispatchBy, locale),
     intlCourier: parcel.intlCourier,
     intlCode: parcel.intlTrackingCode,
@@ -142,6 +150,22 @@ export function ParcelTracking({ order, parcel, index, count }: Props) {
             <li key={s} className={i <= done ? "done" : i === done + 1 ? "current" : ""}>
               <span className="steps-dot" aria-hidden="true" />
               <span className="steps-label">{o.steps[s]}</span>
+              {/* Las fotos del taller cuelgan del tramo "Confirmado → Empacado", cuando el artesano la prepara. */}
+              {s === "confirmed" && photos.length > 0 && (
+                <span className="steps-photos" aria-label={o.photos.label}>
+                  {photos.map((ph, n) => (
+                    <button
+                      key={`${ph.stage}-${n}`}
+                      type="button"
+                      className="steps-photo"
+                      onClick={() => setOpenPhoto(n)}
+                      aria-label={`${o.photos.open}: ${fill(o.photos[ph.stage], vars)}`}
+                    >
+                      <img src={ph.src} alt="" />
+                    </button>
+                  ))}
+                </span>
+              )}
             </li>
           ))}
         </ol>
@@ -180,12 +204,41 @@ export function ParcelTracking({ order, parcel, index, count }: Props) {
         )}
       </div>
 
+      <Modal open={openPhoto !== null} onClose={() => setOpenPhoto(null)} labelledBy={`photo-${parcel.id}`}>
+        {openPhoto !== null && photos[openPhoto] && (
+          <figure className="photo-view">
+            <img src={photos[openPhoto].src} alt={fill(o.photos[photos[openPhoto].stage], vars)} />
+            <figcaption>
+              <b id={`photo-${parcel.id}`}>{fill(o.photos[photos[openPhoto].stage], vars)}</b>
+              <span>{fill(o.photos.note, { ...vars, date: formatDateTime(photos[openPhoto].at, locale) })}</span>
+            </figcaption>
+            {photos.length > 1 && (
+              <div className="photo-view-nav">
+                {photos.map((ph, n) => (
+                  <button
+                    key={`${ph.stage}-${n}`}
+                    type="button"
+                    className={n === openPhoto ? "on" : ""}
+                    onClick={() => setOpenPhoto(n)}
+                    aria-label={fill(o.photos[ph.stage], vars)}
+                  >
+                    <img src={ph.src} alt="" />
+                  </button>
+                ))}
+              </div>
+            )}
+          </figure>
+        )}
+      </Modal>
+
       {courierDelay && (status === "in_transit" || status === "at_hub" || status === "intl_transit") && (
         <div className="courier-delay" role="status">
           <b>⏱ {o.delay.courierTitle}</b>
           <span>{fill(o.delay.courierNote, { ...vars, courier: courierName })}</span>
         </div>
       )}
+
+      {status === "delivered" && <AfterDelivery order={order} parcel={parcel} />}
 
       {!cancelled && <PayoutTrace order={order} parcel={parcel} paidOut={paidOut} currency={displayCurrency} />}
 
@@ -226,6 +279,7 @@ function PayoutTrace({
   currency: Currency;
 }) {
   const { t, locale } = useI18n();
+  const { rate: penPerUsd } = useCurrency();
   const p = t.order.payout;
   const delivered = findEvent(parcel, "delivered");
   const confirmed = findEvent(parcel, "payout_confirmed");
@@ -233,7 +287,7 @@ function PayoutTrace({
   // El artesano cobra en soles; al comprador extranjero le mostramos también el equivalente.
   const artisanAmount =
     currency === "USD"
-      ? `${formatPen(artisanPen)} (≈ ${formatAmount(artisanPen, "USD", siteConfig.penPerUsd)})`
+      ? `${formatPen(artisanPen)} (≈ ${formatAmount(artisanPen, "USD", penPerUsd)})`
       : formatPen(artisanPen);
   const v = { artisan: parcel.artisanFirstName, artisanAmount, account: parcel.payoutAccount };
 
@@ -242,7 +296,7 @@ function PayoutTrace({
       done: true,
       title: p.received,
       body: fill(p.receivedBody, {
-        amount: formatAmount(parcelTotal(parcel), currency, siteConfig.penPerUsd),
+        amount: formatAmount(parcelTotal(parcel), currency, penPerUsd),
         date: formatDay(order.createdAt, locale),
       }),
     },

@@ -1,3 +1,4 @@
+import { useCurrency } from "@/state/CurrencyProvider";
 import { useState, type FormEvent } from "react";
 import { siteConfig } from "@/config/site";
 import { countries } from "@/data/countries";
@@ -74,6 +75,7 @@ const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
  */
 export function CheckoutPage({ requestId }: { requestId?: string }) {
   const { t, locale } = useI18n();
+  const { rate: penPerUsd } = useCurrency();
   const c = t.checkout;
   const cart = useCart();
   const { getProduct, workshops } = useCatalog();
@@ -101,7 +103,7 @@ export function CheckoutPage({ requestId }: { requestId?: string }) {
   const intl = isInternational(values.country);
   // Compradores del extranjero ven y pagan en dólares; Yape solo funciona en Perú.
   const currency = locale === "en" || intl ? "USD" : "PEN";
-  const money = (amountPen: number) => formatAmount(amountPen, currency, siteConfig.penPerUsd);
+  const money = (amountPen: number) => formatAmount(amountPen, currency, penPerUsd);
   const payMethod: PaymentMethod = intl ? "card" : method;
 
   const customProduct = request ? getProduct(request.productId) : undefined;
@@ -418,7 +420,7 @@ export function CheckoutPage({ requestId }: { requestId?: string }) {
               );
             })}
             <PaymentSummary totals={totals} workshops={groups.length} international={intl} currency={currency} />
-            {intl && <p className="co-usd">{fill(c.usdApprox, { rate: siteConfig.penPerUsd.toFixed(2) })}</p>}
+            {intl && <p className="co-usd">{fill(c.usdApprox, { rate: penPerUsd.toFixed(2) })}</p>}
             {Object.values(errors).some(Boolean) && (
               <p className="err" role="alert">
                 {c.errorSummary}
